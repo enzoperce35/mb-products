@@ -1,0 +1,110 @@
+/* MarketPrices.css */
+.market-prices-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+.market-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 1rem;
+}
+
+.market-header h2 {
+  color: #2d3436;
+  font-size: 1.8rem;
+  margin: 0;
+}
+
+.ingredient-count {
+  background: #e1f5fe;
+  color: #0288d1;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.table-wrapper {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.market-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.market-table thead {
+  background-color: #f8f9fa;
+}
+
+.market-table th {
+  padding: 1rem;
+  font-weight: 600;
+  color: #636e72;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.market-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #edf2f7;
+  color: #2d3436;
+  vertical-align: middle;
+}
+
+.market-table tr:hover {
+  background-color: #fcfcfc;
+}
+
+.item-name {
+  font-weight: 600;
+  color: #0984e3;
+}
+
+.brand-tag {
+  color: #b2bec3;
+  font-size: 0.85rem;
+}
+
+.price-cell {
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  color: #27ae60;
+  font-size: 1.1rem;
+}
+
+.unit-info {
+  color: #636e72;
+}
+
+.alter-unit-badge {
+  display: inline-block;
+  background: #fff9db;
+  color: #f08c00;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-style: italic;
+  border: 1px solid #ffe066;
+}
+
+@media (max-width: 768px) {
+  .market-prices-container {
+    padding: 1rem;
+  }
+  
+  .hide-mobile {
+    display: none;
+  }
+}
