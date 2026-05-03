@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { getIngredientCost } from '../utils/factory'; 
 import './ProductMaster.css';
 
 const ProductMaster = () => {
   const [ingredients, setIngredients] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const API_URL = "https://servewise-market-backend.onrender.com/api/v1/ingredients";
 
     fetch(API_URL)
       .then(res => {
-        if (!res.ok) throw new Error("Failed to load Master list");
+        if (!res.ok) throw new Error(`Server Error: ${res.status}`);
         return res.json();
       })
       .then(data => {
@@ -20,11 +20,21 @@ const ProductMaster = () => {
       })
       .catch(err => {
         console.error("Master List Error:", err);
+        setError(err.message);
         setLoading(false);
       });
   }, []);
 
   if (loading) return <div className="loader">Updating Master Records...</div>;
+
+  if (error) {
+    return (
+      <div className="error-state">
+        <h3>Failed to load Product Master</h3>
+        <p>{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="product-master-container">
@@ -43,7 +53,7 @@ const ProductMaster = () => {
               <span className="category-tag">{ing.category || 'General'}</span>
               <span className="id-badge">#{ing.id}</span>
             </div>
-            
+
             <h3 className="ing-name">{ing.name}</h3>
             <p className="ing-brand">{ing.brand || "Generic / Market"}</p>
 
@@ -52,17 +62,21 @@ const ProductMaster = () => {
                 <label>Inventory Unit</label>
                 <span>{ing.quantity} {ing.unit}</span>
               </div>
+
               <div className="stat">
                 <label>Yield</label>
-                <span>{(ing.yield * 100).toFixed(0)}%</span>
+                <span>{((ing.yield ?? 1) * 100).toFixed(0)}%</span>
               </div>
             </div>
 
             <div className="price-footer">
               <div className="price-info">
                 <label>Current Price</label>
-                <span className="price-amt">₱{parseFloat(ing.price).toFixed(2)}</span>
+                <span className="price-amt">
+                  ₱{Number(ing.price ?? 0).toFixed(2)}
+                </span>
               </div>
+
               <button className="edit-icon-btn">Edit</button>
             </div>
           </div>

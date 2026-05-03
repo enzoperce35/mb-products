@@ -1,0 +1,129 @@
+/* =========================
+   GRID CONTAINER
+========================= */
+.recipes-grid-container {
+  padding: 40px;
+  background-color: #f5f5f5; /* Light stone background */
+  min-height: 100vh;
+}
+
+/* =========================
+   GRID LAYOUT
+========================= */
+.recipes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* =========================
+   RECIPE CARD
+========================= */
+.recipe-card-box {
+  background: white;
+  border-radius: 10px;
+  padding: 25px;
+  height: 140px; /* fixed uniform height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  border: 1px solid #e0e0e0;
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.recipe-card-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+  border-color: #d0d0d0;
+}
+
+/* =========================
+   TITLE
+========================= */
+.recipe-card-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #333;
+  text-align: center;
+  text-transform: capitalize;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+/* =========================
+   YIELD INFO
+========================= */
+.recipe-card-yield {
+  position: absolute;
+  bottom: 15px;
+  right: 20px;
+  font-weight: 800;
+  font-size: 1rem;
+  color: #000;
+}
+
+/* =========================
+   LOADING STATE
+========================= */
+.loading-state {
+  padding: 50px;
+  text-align: center;
+  font-weight: 600;
+  color: #666;
+}
+
+/* =========================
+   SINGLE COLUMN FIX (DETAIL PAGE SUPPORT)
+========================= */
+.recipe-columns.single-column {
+  grid-template-columns: 1fr;
+}
+
+.recipe-columns.single-column .column-instructions {
+  display: none;
+}
+
+/* =========================
+   RECIPE BADGE (Sub-recipe indicator)
+========================= */
+.recipe-badge {
+  margin-left: 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  background-color: #e8f4fd;
+  color: #3498db;
+
+  padding: 3px 8px;
+  border-radius: 6px;
+
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* =========================
+   SUB-RECIPE ICON
+========================= */
+.recipe-icon {
+  margin-left: 8px;
+  width: 16px;
+  height: 16px;
+
+  color: #3498db;
+  vertical-align: middle;
+  opacity: 0.85;
+}
+
+/* =========================
+   OPTIONAL: SMOOTH INTERACTION POLISH
+========================= */
+.recipe-card-box:active {
+  transform: scale(0.98);
+}
