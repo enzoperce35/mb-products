@@ -48,7 +48,7 @@ export const formatQuantity = (value) => {
       each: quantity > 1 ? "pcs" : "pc",
       pc: quantity > 1 ? "pcs" : "pc",
       pcs: "pcs",
-      minute: quantity > 1 ? "minutes" : "minute",
+      minute: quantity > 1 ? "mins" : "min",
     };
   
     return unitMap[u] || unit;
