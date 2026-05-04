@@ -36,10 +36,10 @@ const Recipes = ({ onRecipeClick }) => {
     return sorted.filter(r => (r.recipe_items?.length || 0) > 5);
   }, [recipes, showAll]);
 
-  if (loading) return <div className="loading-state">Mabuhay! Loading Ma'Donna Recipes...</div>;
+  if (loading) return <div className="list-loading-state">Mabuhay! Loading Ma'Donna Recipes...</div>;
 
   if (error) return (
-    <div className="error-state">
+    <div className="list-error-state">
       <h3>Pasensya na, may error sa server.</h3>
       <p>{error}</p>
       <button onClick={() => window.location.reload()}>Try Again</button>
@@ -47,36 +47,36 @@ const Recipes = ({ onRecipeClick }) => {
   );
 
   return (
-    <div className="recipes-grid-container">
-      <div className="recipes-grid">
+    <div className="list-view-container">
+      <div className="recipes-main-grid">
 
         {filteredRecipes.map((recipe) => (
           <div 
             key={recipe.id} 
-            className="recipe-card-box"
+            className="grid-item-card"
             onClick={() => onRecipeClick(recipe.id)}
           >
-            <div className="recipe-card-content">
-              <h3 className="recipe-card-title">{recipe.name}</h3>
+            <div className="grid-item-inner">
+              <h3 className="grid-item-title">{recipe.name}</h3>
 
-              <div className="recipe-card-yield">
+              <div className="grid-item-yield">
                 {parseFloat(recipe.base_yield_quantity)} {recipe.base_yield_unit}
               </div>
             </div>
           </div>
         ))}
 
-        {/* 🔘 ACTION BUTTONS (AFTER LAST CARD) */}
-        <div className="recipe-actions">
+        {/* 🔘 ACTION BUTTONS */}
+        <div className="grid-footer-actions">
           <button 
-            className="action-btn primary"
+            className="grid-action-btn grid-btn-primary"
             onClick={() => setShowAll(prev => !prev)}
           >
             {showAll ? "Hide Simple Recipes" : "Show All (A–Z)"}
           </button>
 
           <button 
-            className="action-btn secondary"
+            className="grid-action-btn grid-btn-secondary"
             disabled
             title="Coming soon"
           >

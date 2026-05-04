@@ -1,188 +1,188 @@
 /* =========================
-   GRID CONTAINER
+   PAGE CONTAINER
 ========================= */
-.recipes-grid-container {
-  padding: 40px;
-  background-color: #f5f5f5; /* Light stone background */
-  min-height: 100vh;
-}
-
-/* =========================
-   GRID LAYOUT
-========================= */
-.recipes-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
-  max-width: 1400px;
+.page-container-minimal {
+  max-width: 800px; /* Tablet-friendly width */
   margin: 0 auto;
-}
-
-/* =========================
-   RECIPE CARD
-========================= */
-.recipe-card-box {
-  background: white;
-  border-radius: 10px;
-  padding: 25px;
-  height: 140px; /* fixed uniform height */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  position: relative;
-  cursor: pointer;
-
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  border: 1px solid #e0e0e0;
-
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.recipe-card-box:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
-  border-color: #d0d0d0;
-}
-
-/* =========================
-   TITLE
-========================= */
-.recipe-card-title {
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: #333;
-  text-align: center;
-  text-transform: capitalize;
-  margin: 0;
+  padding: 20px;
+  background-color: #fff;
   font-family: 'Inter', sans-serif;
 }
 
 /* =========================
-   YIELD INFO
+   BACK BUTTON 
 ========================= */
-.recipe-card-yield {
-  position: absolute;
-  bottom: 15px;
-  right: 20px;
-  font-weight: 800;
-  font-size: 1rem;
-  color: #000;
+.back-button-block {
+  margin-bottom: 30px;
 }
 
-/* =========================
-   LOADING STATE
-========================= */
-.loading-state {
-  padding: 50px;
-  text-align: center;
-  font-weight: 600;
-  color: #666;
-}
-
-/* =========================
-   SINGLE COLUMN FIX (DETAIL PAGE SUPPORT)
-========================= */
-.recipe-columns.single-column {
-  grid-template-columns: 1fr;
-}
-
-.recipe-columns.single-column .column-instructions {
-  display: none;
-}
-
-/* =========================
-   RECIPE BADGE (Sub-recipe indicator)
-========================= */
-.recipe-badge {
-  margin-left: 10px;
-  font-size: 0.7rem;
-  font-weight: 700;
-
-  background-color: #e8f4fd;
-  color: #3498db;
-
-  padding: 3px 8px;
+.back-link-minimal {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 8px 14px;
   border-radius: 6px;
-
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* =========================
-   SUB-RECIPE ICON
-========================= */
-.recipe-icon {
-  margin-left: 8px;
-  width: 16px;
-  height: 16px;
-
-  color: #3498db;
-  vertical-align: middle;
-  opacity: 0.85;
-}
-
-/* =========================
-   OPTIONAL: SMOOTH INTERACTION POLISH
-========================= */
-.recipe-card-box:active {
-  transform: scale(0.98);
-}
-
-/* price toggle */
-.price-toggle-btn {
-  margin-left: auto;
-  background: none;
-  border: none;
+  color: #475569;
+  font-weight: 600;
   cursor: pointer;
-  opacity: 0.6;
-  transition: all 0.2s ease;
+  font-size: 0.9rem;
 }
 
-.price-toggle-btn:hover {
-  opacity: 1;
-  transform: scale(1.1);
+/* =========================
+   TITLE & META (Vertical List)
+========================= */
+.recipe-hero-section {
+  margin-bottom: 40px;
 }
 
-.price-toggle-btn.active {
-  color: #27ae60;
-  opacity: 1;
+.minimal-recipe-title {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 20px 0;
+  line-height: 1.1;
 }
 
-/* 3-column table when prices shown */
-.ingredients-table td {
-  padding: 12px 0;
-  font-size: 1.2rem;
-  border-bottom: 1px solid #eee;
-  color: #444;
+.meta-pairs-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.ing-name {
+.meta-pair {
+  font-size: 1.1rem;
+  color: #475569;
+}
+
+.meta-key {
+  font-weight: 700;
+  margin-right: 6px;
+  color: #1e293b;
+}
+
+.meta-value-cost {
+  color: #1e293b;
+}
+
+/* =========================
+   HEADERS (Blue Underline)
+========================= */
+.minimal-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 6px;
+  margin-bottom: 15px;
+}
+
+.minimal-section-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #3498db;
+  margin: 0;
+}
+
+/* =========================
+   STACKED LAYOUT 
+   (Ingredients top, Instructions bottom)
+========================= */
+.recipe-sections-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* =========================
+   INGREDIENTS TABLE
+========================= */
+.minimal-ingredients-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.recipe-icon-minimal {
+  margin-left: 6px;
+  width: 14px;
+  height: 14px;
+
+  color: #3498db; /* clean blue */
+  opacity: 0.9;
+
+  vertical-align: middle;
+}
+
+.ing-item-row-minimal {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.ing-item-row-minimal td {
+  padding: 14px 0;
+  font-size: 1.15rem;
+  color: #334155;
+}
+
+.ing-name-minimal {
   text-align: left;
 }
 
-.ing-qty {
+.ing-qty-minimal {
   text-align: right;
-  padding-right: 20px;
-  color: #555;
+  color: #64748b;
 }
 
-.ing-cost {
+.ing-cost-minimal {
   text-align: right;
+  padding-left: 20px;
   font-weight: 700;
-  color: #2c3e50;
+  color: #27ae60;
 }
 
-/* total row */
-.total-row {
-  margin-top: 20px;
-  padding-top: 15px;
-  border-top: 2px solid #ddd;
+/* =========================
+   INSTRUCTIONS 
+========================= */
+.minimal-instructions-list {
+  padding-left: 0;
+  list-style: none;
+  counter-reset: step-counter;
+}
+
+.minimal-instruction-step {
+  counter-increment: step-counter;
+  display: flex;
+  margin-bottom: 18px;
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: #334155;
+}
+
+.minimal-instruction-step::before {
+  content: counter(step-counter) ". ";
+  font-weight: 800;
+  color: #64748b;
+  margin-right: 12px;
+  min-width: 20px;
+}
+
+/* =========================
+   TOGGLE & TOTALS
+========================= */
+.price-toggle-btn-minimal {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.minimal-total-row {
   display: flex;
   justify-content: space-between;
-  font-size: 1.3rem;
-}
-
-.total-price {
-  margin-left: 10px;
-  color: #27ae60;
+  padding: 15px 0;
+  margin-top: 10px;
+  border-top: 2px solid #1e293b;
+  font-size: 1.25rem;
+  font-weight: 800;
 }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Layers, DollarSign } from 'lucide-react';
+import { Layers, ChevronLeft, DollarSign } from 'lucide-react';
+import { formatQtyUnit } from '../utils/formatUnits';
 import './RecipeDetail.css';
 
 const formatPeso = (value) => {
@@ -28,100 +29,103 @@ const RecipeDetail = ({ recipeId, onBack }) => {
   if (!recipe) return <div className="error-state">Recipe not found.</div>;
 
   return (
-    <div className="detail-page-container">
-      <button className="back-link" onClick={onBack}>← Back</button>
+    <div className="page-container-minimal">
+      {/* BACK BUTTON */}
+      <div className="back-button-block">
+        <button className="back-link-minimal" onClick={onBack}>
+          <ChevronLeft size={16} /> Back
+        </button>
+      </div>
 
-      <div className="recipe-detail-card">
+      {/* HERO SECTION (Metadata List) */}
+      <div className="recipe-hero-section">
+        <h1 className="minimal-recipe-title">{recipe.name}</h1>
 
-        {/* HEADER */}
-        <header className="recipe-detail-header">
-          <h1 className="recipe-title-main">{recipe.name}</h1>
-
-          <div className="recipe-meta-strip">
-            {recipe.base_yield_quantity} {recipe.base_yield_unit} | 8 mins | 
-            <strong className="total-price">
-              {formatPeso(recipe.total_cost)}
-            </strong>
+        <div className="meta-pairs-container">
+          <div className="meta-pair">
+            <span className="meta-key">Quantity:</span>
+            <span className="meta-value">{recipe.base_yield_quantity} {recipe.base_yield_unit}</span>
           </div>
-        </header>
+          <div className="meta-pair">
+            <span className="meta-key">Prep Time:</span>
+            <span className="meta-value">8 mins</span>
+          </div>
+          <div className="meta-pair">
+            <span className="meta-key">Cost:</span>
+            <strong className="meta-value-cost">{formatPeso(recipe.total_cost)}</strong>
+          </div>
+        </div>
+      </div>
 
-        <div className={`recipe-columns ${!recipe.instructions || recipe.instructions.trim() === "" ? 'single-column' : ''}`}>
+      <div className="recipe-sections-stack">
 
-          {/* INGREDIENTS */}
-          <div className="column-ingredients">
-
-            <h2 className="section-title-blue">
-              Ingredients
-
-              <button
-                className={`price-toggle-btn ${showPrices ? 'active' : ''}`}
-                onClick={() => setShowPrices(prev => !prev)}
-                title="Toggle ingredient cost"
-              >
-                <DollarSign size={20} />
-              </button>
-            </h2>
-
-            <table className="ingredients-table">
-              <tbody>
-                {recipe.recipe_items?.map((item, idx) => (
-                  <tr key={idx}>
-                    
-                    {/* NAME */}
-                    <td className="ing-name">
-                      {item.component_name}
-
-                      {item.component_type === "Recipe" && (
-                        <Layers className="recipe-icon" />
-                      )}
-                    </td>
-
-                    {/* QTY */}
-                    <td className="ing-qty">
-                      {Number(item.needed_quantity).toFixed(2)} {item.needed_unit}
-                    </td>
-
-                    {/* PRICE */}
-                    {showPrices && (
-                      <td className="ing-cost">
-                        {formatPeso(item.cost)}
-                      </td>
-                    )}
-
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {/* TOTAL FOOTER (professional touch) */}
-            {showPrices && (
-              <div className="total-row">
-                <span>Total Cost</span>
-                <strong>{formatPeso(recipe.total_cost)}</strong>
-              </div>
-            )}
-
+        {/* INGREDIENTS */}
+        <section className="column-ingredients">
+          <div className="minimal-section-header">
+            <h2 className="minimal-section-title">Ingredients</h2>
+            <button
+              className={`price-toggle-btn-minimal ${showPrices ? 'active' : ''}`}
+              onClick={() => setShowPrices(prev => !prev)}
+              title="Toggle ingredient cost"
+            >
+              <DollarSign size={22} />
+            </button>
           </div>
 
-          {/* INSTRUCTIONS */}
-          {recipe.instructions && recipe.instructions.trim() !== "" && (
-            <div className="column-instructions">
-              <h2 className="section-title-blue">Instructions</h2>
+          <table className="minimal-ingredients-table">
+            <tbody>
+              {recipe.recipe_items?.map((item, idx) => (
+                <tr key={idx} className="ing-item-row-minimal">
+                  <td className="ing-name-minimal">
+                    {item.component_name}
+                    {item.component_type === "Recipe" && <Layers className="recipe-icon-minimal" />}
+                  </td>
 
-              <ol className="instructions-list">
-                {recipe.instructions
-                  .split('\n')
-                  .filter(step => step.trim() !== "")
-                  .map((step, idx) => (
-                    <li key={idx} className="instruction-step">
-                      {step.replace(/^\d+\.\s*/, '')}
-                    </li>
-                  ))}
-              </ol>
+                  <td className="ing-qty-minimal">
+                    {/* PRIORITY: Custom Name -> Formatted Qty/Unit */}
+                    {item.custom_display_name && item.custom_display_name.trim() !== ""
+                      ? item.custom_display_name
+                      : formatQtyUnit(item.needed_quantity, item.needed_unit)
+                    }
+                  </td>
+
+                  {showPrices && (
+                    <td className="ing-cost-minimal">
+                      {formatPeso(item.cost)}
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {showPrices && (
+            <div className="minimal-total-row">
+              <span>Total Cost</span>
+              <strong>{formatPeso(recipe.total_cost)}</strong>
             </div>
           )}
+        </section>
 
-        </div>
+        {/* INSTRUCTIONS */}
+        {recipe.instructions && recipe.instructions.trim() !== "" && (
+          <section className="column-instructions">
+            <div className="minimal-section-header">
+              <h2 className="minimal-section-title">Instructions</h2>
+            </div>
+            <ol className="minimal-instructions-list">
+              {recipe.instructions
+                .split('\n')
+                .filter(step => step.trim() !== "")
+                .map((step, idx) => (
+                  <li key={idx} className="minimal-instruction-step">
+                    {step.replace(/^\d+\.\s*/, '')}
+                  </li>
+                ))}
+            </ol>
+          </section>
+        )}
+
       </div>
     </div>
   );
