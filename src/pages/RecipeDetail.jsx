@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Layers, DollarSign } from 'lucide-react';
 import './RecipeDetail.css';
 
+const formatPeso = (value) => {
+  return `₱${Number(value || 0).toFixed(2)}`;
+};
+
 const RecipeDetail = ({ recipeId, onBack }) => {
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -34,21 +38,23 @@ const RecipeDetail = ({ recipeId, onBack }) => {
           <h1 className="recipe-title-main">{recipe.name}</h1>
 
           <div className="recipe-meta-strip">
-            {recipe.base_yield_quantity} {recipe.base_yield_unit} | 8 mins | ₱{parseFloat(recipe.total_cost ?? 0).toFixed(2)}
+            {recipe.base_yield_quantity} {recipe.base_yield_unit} | 8 mins | 
+            <strong className="total-price">
+              {formatPeso(recipe.total_cost)}
+            </strong>
           </div>
         </header>
 
         <div className={`recipe-columns ${!recipe.instructions || recipe.instructions.trim() === "" ? 'single-column' : ''}`}>
 
-          {/* LEFT: INGREDIENTS */}
+          {/* INGREDIENTS */}
           <div className="column-ingredients">
 
-            {/* TITLE + PRICE TOGGLE */}
             <h2 className="section-title-blue">
               Ingredients
 
               <button
-                className="price-toggle-btn"
+                className={`price-toggle-btn ${showPrices ? 'active' : ''}`}
                 onClick={() => setShowPrices(prev => !prev)}
                 title="Toggle ingredient cost"
               >
@@ -61,7 +67,7 @@ const RecipeDetail = ({ recipeId, onBack }) => {
                 {recipe.recipe_items?.map((item, idx) => (
                   <tr key={idx}>
                     
-                    {/* NAME + RECIPE ICON */}
+                    {/* NAME */}
                     <td className="ing-name">
                       {item.component_name}
 
@@ -70,24 +76,34 @@ const RecipeDetail = ({ recipeId, onBack }) => {
                       )}
                     </td>
 
-                    {/* QTY + PRICE (TOGGLED) */}
+                    {/* QTY */}
                     <td className="ing-qty">
-                      {item.needed_quantity} {item.needed_unit}
-
-                      {showPrices && (
-                        <span className="ing-price">
-                          ₱{Number(item.cost || 0).toFixed(2)}
-                        </span>
-                      )}
+                      {Number(item.needed_quantity).toFixed(2)} {item.needed_unit}
                     </td>
+
+                    {/* PRICE */}
+                    {showPrices && (
+                      <td className="ing-cost">
+                        {formatPeso(item.cost)}
+                      </td>
+                    )}
 
                   </tr>
                 ))}
               </tbody>
             </table>
+
+            {/* TOTAL FOOTER (professional touch) */}
+            {showPrices && (
+              <div className="total-row">
+                <span>Total Cost</span>
+                <strong>{formatPeso(recipe.total_cost)}</strong>
+              </div>
+            )}
+
           </div>
 
-          {/* RIGHT: INSTRUCTIONS */}
+          {/* INSTRUCTIONS */}
           {recipe.instructions && recipe.instructions.trim() !== "" && (
             <div className="column-instructions">
               <h2 className="section-title-blue">Instructions</h2>
