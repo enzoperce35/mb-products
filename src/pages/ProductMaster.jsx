@@ -1,29 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import './ProductMaster.css';
 
+// 1. MODULE-LEVEL CACHE: This stays in memory even when the component unmounts.
+let productCache = null;
+
 const ProductMaster = () => {
-  const [groupedProducts, setGroupedProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [groupedProducts, setGroupedProducts] = useState(productCache || []);
+  const [loading, setLoading] = useState(!productCache); // No loading if cache exists
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // shop_id=1 for Ma'Donna Delicacies
+    // 2. CACHE CHECK: If we already have data, don't fetch again.
+    if (productCache) {
+      setLoading(false);
+      return;
+    }
+
     const API_URL = "https://servewise-market-backend.onrender.com/api/v1/products/master_list?shop_id=1";
 
     fetch(API_URL)
       .then(res => {
-        if (!res.ok) {
-          throw new Error(`Server Error: ${res.status}. Check skip_before_action.`);
-        }
+        if (!res.ok) throw new Error(`Server Error: ${res.status}`);
         return res.json();
       })
       .then(data => {
-        // Group by Name: Consolidates products like "Puto" into one entry
         const consolidated = data.reduce((acc, product) => {
           const nameKey = product.name.trim().toUpperCase();
-          
-          // Use 'variants' to match your Product model
-          const currentVariants = product.variants || [];
+          const currentVariants = product.variants || []; //
 
           if (!acc[nameKey]) {
             acc[nameKey] = { 
@@ -31,13 +34,17 @@ const ProductMaster = () => {
               variants: [...currentVariants] 
             };
           } else {
-            // Append variants from duplicate product entries to the bottom
             acc[nameKey].variants = [...acc[nameKey].variants, ...currentVariants];
           }
           return acc;
         }, {});
 
-        setGroupedProducts(Object.values(consolidated));
+        const result = Object.values(consolidated);
+        
+        // 3. SAVE TO CACHE: Update the variable outside the component
+        productCache = result; 
+        
+        setGroupedProducts(result);
         setLoading(false);
       })
       .catch(err => {
@@ -79,7 +86,7 @@ const ProductMaster = () => {
                     <td>₱{Number(variant.price).toFixed(2)}</td>
                     <td>₱0.00</td>
                     <td className="profit-cell">₱0.00</td>
-                    <td className="change-cell">0</td>
+                    <td className="change-cell">0%</td>
                   </tr>
                 ))}
               </React.Fragment>

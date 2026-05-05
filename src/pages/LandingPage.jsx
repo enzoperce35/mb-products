@@ -1,29 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import './LandingPage.css';
 
-const LandingPage = ({ setView }) => {
-  const [ingredients, setIngredients] = useState([]);
-  const [recipes, setRecipes] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    Promise.all([
-      fetch("https://servewise-market-backend.onrender.com/api/v1/ingredients")
-        .then(res => res.json()),
-
-      fetch("https://servewise-market-backend.onrender.com/api/v1/recipes")
-        .then(res => res.json())
-    ])
-      .then(([ingredientsData, recipesData]) => {
-        setIngredients(ingredientsData);
-        setRecipes(recipesData);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Dashboard Sync Error:", err);
-        setLoading(false);
-      });
-  }, []);
+const LandingPage = ({ setView, ingredients, recipes, loading }) => {
 
   return (
     <div className="dashboard-wrapper">
@@ -32,16 +10,20 @@ const LandingPage = ({ setView }) => {
         <p>Manage your inventory, production costs, and recipe margins.</p>
       </section>
 
-      {/* QUICK STATS PILLS */}
+      {/* QUICK STATS PILLS - Uses props for immediate display */}
       <div className="quick-stats-row">
         <div className="stat-pill">
           <label>Ingredients</label>
-          <span className="value">{loading ? "..." : ingredients.length}</span>
+          <span className="value">
+            {loading ? "..." : (ingredients?.length || 0)}
+          </span>
         </div>
 
         <div className="stat-pill">
           <label>Recipes</label>
-          <span className="value">{loading ? "..." : recipes.length}</span>
+          <span className="value">
+            {loading ? "..." : (recipes?.length || 0)}
+          </span>
         </div>
 
         <div className="stat-pill">
@@ -58,7 +40,7 @@ const LandingPage = ({ setView }) => {
           <div className="card-icon">🏷️</div>
           <div className="card-info">
             <h3>Market Prices</h3>
-            <p>Update costs for {ingredients.length} raw materials.</p>
+            <p>Update costs for {loading ? "..." : (ingredients?.length || 0)} raw materials.</p>
           </div>
           <button className="go-btn">Update List</button>
         </div>
@@ -78,7 +60,7 @@ const LandingPage = ({ setView }) => {
           <div className="card-icon">📝</div>
           <div className="card-info">
             <h3>Recipes</h3>
-            <p>Analyze food costs for {recipes.length} active menus.</p>
+            <p>Analyze food costs for {loading ? "..." : (recipes?.length || 0)} active menus.</p>
           </div>
           <button className="go-btn">View Costs</button>
         </div>

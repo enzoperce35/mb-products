@@ -1,16 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import LandingPage from './pages/LandingPage';
 import MarketPrices from './pages/MarketPrices';
 import ProductMaster from './pages/ProductMaster'; 
 import Recipes from './pages/Recipes';
-import RecipeDetail from './pages/RecipeDetail'; // You'll create this file next
+import RecipeDetail from './pages/RecipeDetail';
 import './App.css';
 
 function App() {
   const [currentView, setCurrentView] = useState('landing');
   const [selectedRecipeId, setSelectedRecipeId] = useState(null);
 
-  // Helper to handle going to details
+  // Global State for Caching
+  const [ingredients, setIngredients] = useState([]);
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Centralized Data Fetching (Fetched only once on mount)
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      fetch("https://servewise-market-backend.onrender.com/api/v1/ingredients")
+        .then(res => res.json()),
+      fetch("https://servewise-market-backend.onrender.com/api/v1/recipes")
+        .then(res => res.json())
+    ])
+      .then(([ingredientsData, recipesData]) => {
+        setIngredients(ingredientsData);
+        setRecipes(recipesData);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Global Data Sync Error:", err);
+        setLoading(false);
+      });
+  }, []);
+
   const openRecipe = (id) => {
     setSelectedRecipeId(id);
     setCurrentView('recipe-detail');
@@ -45,16 +69,36 @@ function App() {
       </nav>
 
       <main className="content-container">
-        {currentView === 'landing' && <LandingPage setView={setCurrentView} />}
-        {currentView === 'market' && <MarketPrices setView={setCurrentView} />}
-        {currentView === 'products' && <ProductMaster setView={setCurrentView} />}
+        {currentView === 'landing' && (
+          <LandingPage 
+            setView={setCurrentView} 
+            ingredients={ingredients} 
+            recipes={recipes} 
+            loading={loading} 
+          />
+        )}
         
-        {/* Pass the openRecipe function to the Recipes grid */}
-        {currentView === 'recipes' && (
-          <Recipes setView={setCurrentView} onRecipeClick={openRecipe} />
+        {currentView === 'market' && (
+          <MarketPrices 
+            setView={setCurrentView} 
+            ingredients={ingredients} 
+            setIngredients={setIngredients} // Allows local updates to sync globally
+          />
         )}
 
-        {/* New View for the Detail Page */}
+        {currentView === 'products' && (
+          <ProductMaster setView={setCurrentView} />
+        )}
+        
+        {currentView === 'recipes' && (
+          <Recipes 
+            setView={setCurrentView} 
+            onRecipeClick={openRecipe} 
+            recipes={recipes} 
+            loading={loading}
+          />
+        )}
+
         {currentView === 'recipe-detail' && (
           <RecipeDetail 
             recipeId={selectedRecipeId} 

@@ -1,30 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import './MarketPrices.css';
 
-const MarketPrices = () => {
-  const [ingredients, setIngredients] = useState([]);
-  const [loading, setLoading] = useState(true);
+// 1. Accept ingredients and loading as props from App.js
+const MarketPrices = ({ ingredients, loading }) => {
 
-  useEffect(() => {
-    // Replace with your actual Render backend URL
-    const API_URL = "https://servewise-market-backend.onrender.com/api/v1/ingredients";
-
-    fetch(API_URL)
-      .then(res => {
-        if (!res.ok) throw new Error("Network response was not ok");
-        return res.json();
-      })
-      .then(data => {
-        setIngredients(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Fetch error:", err);
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) return <div className="p-8 text-center">Loading Ma'Donna Market Prices...</div>;
+  // 2. Local fetch and useEffect are removed to prevent redundant network calls
+  
+  // 3. Use the global loading state passed from App.js
+  if (loading && ingredients.length === 0) {
+    return <div className="p-8 text-center">Loading Ma'Donna Market Prices...</div>;
+  }
 
   return (
     <div className="market-prices-container">
@@ -40,7 +25,6 @@ const MarketPrices = () => {
               <th>Ingredient</th>
               <th>Price</th>
               <th>Quantity/Unit</th>
-           
             </tr>
           </thead>
           <tbody>
@@ -48,6 +32,7 @@ const MarketPrices = () => {
               <tr key={ing.id}>
                 <td>
                   <div className="item-name">{ing.name}</div>
+                  {/* brand tag helps distinguish local Philippine suppliers */}
                   <div className="brand-tag show-mobile">{ing.brand}</div>
                 </td>
                 <td className="price-cell">₱{parseFloat(ing.price).toFixed(2)}</td>
