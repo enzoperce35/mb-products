@@ -8,6 +8,30 @@ const UNIT_MAP = {
   time: ['minute']
 };
 
+const UNIT_CONVERSION = {
+  weight: {
+    mg: 0.001,
+    g: 1,
+    kg: 1000,
+    oz: 28.3495,
+    lb: 453.592
+  },
+  volume: {
+    ml: 1,
+    l: 1000,
+    tsp: 4.92892,
+    tbs: 14.7868,
+    'fl-oz': 29.5735,
+    cup: 240,
+    gal: 3785.41
+  },
+  count: {
+    each: 1,
+    pc: 1,
+    unit: 1
+  }
+};
+
 let productCache = null;
 
 /* =========================
@@ -52,12 +76,41 @@ const computeVariantStats = (variant) => {
   return { cost, profit, margin };
 };
 
+const convertToBase = (qty, fromUnit, item, category) => {
+  const baseUnit = (item.base_yield_unit || item.unit || '').toLowerCase();
+  const from = (fromUnit || '').toLowerCase();
+
+  if (!baseUnit || baseUnit === from) return Number(qty || 0);
+
+  const map = UNIT_CONVERSION[category];
+  if (!map || !map[from] || !map[baseUnit]) return Number(qty || 0);
+
+  // convert → base unit (g / ml / etc.)
+  const inBase = Number(qty || 0) * map[from];
+  return inBase / map[baseUnit];
+};
+
 /* =========================
    MODAL LIVE COST
 ========================= */
-const calculateCost = (components) => {
+const calculateCost = (components, recipes, ingredients) => {
   return components.reduce((sum, comp) => {
-    return sum + Number(comp.component_cost || 0);
+    const list = comp.type === 'Recipe' ? recipes : ingredients;
+    const item = list.find(i => i.id === comp.component_id);
+    if (!item) return sum;
+
+    const unitCost = getUnitCost(item, comp.type);
+
+    const category = comp.category;
+
+    const adjustedQty = convertToBase(
+      comp.qty,
+      comp.unit,
+      item,
+      comp.category
+    );
+
+    return sum + (unitCost * adjustedQty);
   }, 0);
 };
 
@@ -240,7 +293,6 @@ const ProductMaster = () => {
                               qty: Number(vc.quantity),
                               unit: vc.unit,
                               category: getUnitCategory(vc.unit),
-                              component_cost: Number(vc.component_cost || 0)
                             }))
                           );
                         }}
@@ -276,7 +328,16 @@ const ProductMaster = () => {
                 const item = list.find(i => i.id === comp.component_id);
                 if (!item) return null;
 
-                const lineCost = Number(comp.component_cost || 0);
+                const unitCost = getUnitCost(item, comp.type);
+
+                const adjustedQty = convertToBase(
+                  comp.qty,
+                  comp.unit,
+                  item,
+                  comp.category
+                );
+
+                const lineCost = unitCost * adjustedQty;
 
                 return (
                   <div key={idx} className="cost-line">
