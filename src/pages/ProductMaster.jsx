@@ -55,13 +55,9 @@ const computeVariantStats = (variant) => {
 /* =========================
    MODAL LIVE COST
 ========================= */
-const calculateCost = (components, recipes, ingredients) => {
+const calculateCost = (components) => {
   return components.reduce((sum, comp) => {
-    const list = comp.type === 'Recipe' ? recipes : ingredients;
-    const item = list.find(i => i.id === comp.component_id);
-
-    const unitCost = getUnitCost(item, comp.type);
-    return sum + (unitCost * Number(comp.qty || 0));
+    return sum + Number(comp.component_cost || 0);
   }, 0);
 };
 
@@ -95,21 +91,21 @@ const ProductMaster = () => {
           fetch("https://servewise-market-backend.onrender.com/api/v1/recipes"),
           fetch("https://servewise-market-backend.onrender.com/api/v1/ingredients")
         ]);
-    
+
         // Check if the response was successful before parsing
         if (!pRes.ok) throw new Error("Backend failed to load Product Master");
-    
+
         const pData = await pRes.json();
         const rData = await rRes.json();
         const iData = await iRes.json();
-    
+
         // STRICT CHECK: Ensure pData is an array before calling .reduce()
         if (!Array.isArray(pData)) {
           console.error("Data received is not an array:", pData);
           setGroupedProducts([]);
           return;
         }
-    
+
         const grouped = pData.reduce((acc, product) => {
           const key = product.name?.trim().toUpperCase() || "UNNAMED";
           const variants = product.variants || [];
@@ -120,7 +116,7 @@ const ProductMaster = () => {
           }
           return acc;
         }, {});
-    
+
         productCache = Object.values(grouped);
         setGroupedProducts(productCache);
         setRecipes(rData);
@@ -243,7 +239,8 @@ const ProductMaster = () => {
                               component_id: vc.component_id,
                               qty: Number(vc.quantity),
                               unit: vc.unit,
-                              category: getUnitCategory(vc.unit)
+                              category: getUnitCategory(vc.unit),
+                              component_cost: Number(vc.component_cost || 0)
                             }))
                           );
                         }}
@@ -279,8 +276,7 @@ const ProductMaster = () => {
                 const item = list.find(i => i.id === comp.component_id);
                 if (!item) return null;
 
-                const unitCost = getUnitCost(item, comp.type);
-                const lineCost = unitCost * Number(comp.qty || 0);
+                const lineCost = Number(comp.component_cost || 0);
 
                 return (
                   <div key={idx} className="cost-line">
