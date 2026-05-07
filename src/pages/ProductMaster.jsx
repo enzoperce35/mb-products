@@ -233,20 +233,65 @@ const ProductMaster = () => {
 
   const handleSave = async () => {
     try {
+      const variantId = editingVariant?.id;
+  
       const res = await fetch(
-        `https://servewise-market-backend.onrender.com/api/v1/product_variants/${editingVariant.id}/update_components`,
+        `https://servewise-market-backend.onrender.com/api/v1/product_variants/${variantId}/update_components`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ components: selectedComponents })
         }
       );
-
+  
       if (res.ok) {
-        productCache = null;
-        window.location.reload();
+  
+        // 🔥 preserve scroll position
+        const currentScroll = window.scrollY;
+  
+        // 🔥 instantly close modal
+        setEditingVariant(null);
+        setSelectedComponents([]);
+  
+        // 🔥 prevent UI jump
+        setTimeout(() => {
+          window.scrollTo(0, currentScroll);
+        }, 0);
+  
+        // 🔥 refresh ONLY product list silently
+        fetch(
+          "https://servewise-market-backend.onrender.com/api/v1/products/master_list?shop_id=1"
+        )
+          .then(r => r.json())
+          .then(pData => {
+  
+            if (!Array.isArray(pData)) return;
+  
+            const grouped = pData.reduce((acc, product) => {
+              const key = product.name?.trim().toUpperCase() || "UNNAMED";
+              const variants = product.variants || [];
+  
+              if (!acc[key]) {
+                acc[key] = {
+                  displayName: key,
+                  variants: [...variants]
+                };
+              } else {
+                acc[key].variants.push(...variants);
+              }
+  
+              return acc;
+            }, {});
+  
+            productCache = Object.values(grouped);
+  
+            // 🔥 soft UI refresh
+            setGroupedProducts([...productCache]);
+          });
       }
-    } catch {
+  
+    } catch (err) {
+      console.error(err);
       alert("Error saving components");
     }
   };
