@@ -1,65 +1,80 @@
 import React, { useState, useMemo } from 'react';
 import './Recipes.css';
 
-// 1. Receive recipes and loading as props from App.js
-const Recipes = ({ onRecipeClick, recipes, loading }) => {
-  const [showAll, setShowAll] = useState(false);
-  const [error] = useState(null); // Managed globally now, but kept for UI structure
+const Recipes = ({ onRecipeClick, recipes, loading, onAddRecipe }) => {
+  // 1. Manage active tab for grouping
+  const [activeTab, setActiveTab] = useState('main');
 
-  // 2. Remove the useEffect and local fetch entirely
+  // 2. Group recipes by type (Main, Sub, Component)
+  const groupedRecipes = useMemo(() => {
+    if (!recipes) return { main: [], sub: [], component: [] };
 
-  const filteredRecipes = useMemo(() => {
-    if (!recipes) return [];
+    const groups = {
+      main: [],
+      sub: [],
+      component: []
+    };
 
-    const sorted = [...recipes].sort((a, b) =>
-      a.name.localeCompare(b.name)
-    );
+    // Sort alphabetically and group
+    [...recipes]
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .forEach(recipe => {
+        const type = recipe.recipe_type || 'component';
+        if (groups[type]) groups[type].push(recipe);
+      });
 
-    if (showAll) return sorted;
+    return groups;
+  }, [recipes]);
 
-    // Logic for Ma'Donna Delicacies: filter for complex recipes by default
-    return sorted.filter(r => (r.recipe_items?.length || 0) > 5);
-  }, [recipes, showAll]);
-
-  // 3. Use the global loading state
   if (loading && recipes.length === 0) {
     return <div className="list-loading-state">Mabuhay! Loading Ma'Donna Recipes...</div>;
   }
 
-  if (error) return (
-    <div className="list-error-state">
-      <h3>Pasensya na, may error sa server.</h3>
-      <p>{error}</p>
-    </div>
-  );
-
   return (
     <div className="list-view-container">
-      <div className="recipes-main-grid">
-        {filteredRecipes.map((recipe) => (
-          <div 
-            key={recipe.id} 
-            className="grid-item-card"
-            onClick={() => onRecipeClick(recipe.id)}
+      {/* Tab Navigation for Groups */}
+      <div className="recipe-type-tabs">
+        {['main', 'sub', 'component'].map((type) => (
+          <button
+            key={type}
+            className={`tab-btn ${activeTab === type ? 'active' : ''}`}
+            onClick={() => setActiveTab(type)}
           >
-            <div className="grid-item-inner">
-              <h3 className="grid-item-title">{recipe.name}</h3>
-              <div className="grid-item-yield">
-                {parseFloat(recipe.base_yield_quantity)} {recipe.base_yield_unit}
+            {type.charAt(0).toUpperCase() + type.slice(1)}s
+          </button>
+        ))}
+      </div>
+
+      <div className="recipes-main-grid">
+        {groupedRecipes[activeTab].length > 0 ? (
+          groupedRecipes[activeTab].map((recipe) => (
+            <div 
+              key={recipe.id} 
+              className="grid-item-card"
+              onClick={() => onRecipeClick(recipe.id)}
+            >
+              <div className="grid-item-inner">
+                <h3 className="grid-item-title">{recipe.name}</h3>
+                <div className="grid-item-yield">
+                  {parseFloat(recipe.base_yield_quantity)} {recipe.base_yield_unit}
+                </div>
+                <div className="grid-item-cost">
+                  ₱{parseFloat(recipe.total_cost || 0).toLocaleString()}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <div className="empty-group-state">No {activeTab} recipes found.</div>
+        )}
 
         <div className="grid-footer-actions">
+          {/* 3. Add Recipe now calls the prop function */}
           <button 
             className="grid-action-btn grid-btn-primary"
-            onClick={() => setShowAll(prev => !prev)}
+            onClick={onAddRecipe}
           >
-            {showAll ? "Hide Simple Recipes" : "Show All (A–Z)"}
-          </button>
-          <button className="grid-action-btn grid-btn-secondary" disabled>
-            + Add Recipe
+            + Add New {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
           </button>
         </div>
       </div>

@@ -107,3 +107,26 @@
   color: #666;
   font-size: 1.2rem;
 }
+
+
+.recipe-type-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.tab-btn {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  background: #f9f9f9;
+  cursor: pointer;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.tab-btn.active {
+  background: #e67e22; /* Ma'Donna Orange */
+  color: white;
+  border-color: #d35400;
+}

@@ -1,0 +1,140 @@
+/* RecipeModal.css */
+
+/* Dark overlay to focus attention on the modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* Deep stone/dim effect */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px); /* Modern blur effect */
+}
+
+/* Modal Box */
+.modal-content {
+  background: #ffffff;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #f4f4f4;
+  padding-bottom: 10px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #2c3e50; /* Stone dark text */
+  font-size: 1.5rem;
+}
+
+.close-x {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #95a5a6;
+  line-height: 1;
+}
+
+/* Form Styling */
+.form-group {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #34495e;
+  font-size: 0.9rem;
+}
+
+.form-group input, 
+.form-group select, 
+.form-group textarea {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.form-group input:focus, 
+.form-group select:focus {
+  outline: none;
+  border-color: #e67e22; /* Ma'Donna Orange focus */
+  box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.2);
+}
+
+/* Footer Actions */
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  justify-content: flex-end;
+}
+
+.btn-cancel {
+  padding: 10px 20px;
+  background: #ecf0f1;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #7f8c8d;
+  transition: background 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #dfe6e9;
+}
+
+.btn-save {
+  padding: 10px 20px;
+  background: #e67e22; /* High-energy Orange CTA */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.1s, background 0.2s;
+}
+
+.btn-save:hover {
+  background: #d35400;
+  transform: translateY(-1px);
+}
+
+.btn-save:active {
+  transform: translateY(0);
+}
+
+/* Mobile optimizations for Webviews */
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 16px;
+    width: 95%;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 0 !important;
+  }
+}
