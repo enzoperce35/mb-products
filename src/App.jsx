@@ -17,6 +17,8 @@ function App() {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [editingRecipe, setEditingRecipe] = useState(null);
+
   // Centralized Data Fetching (Fetched only once on mount)
   useEffect(() => {
     setLoading(true);
@@ -46,18 +48,18 @@ function App() {
     try {
       const response = await fetch("https://servewise-market-backend.onrender.com/api/v1/recipes", {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
         body: JSON.stringify({ recipe: newRecipeData })
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         setRecipes(prev => [...prev, data]);
-        setIsModalOpen(false); 
+        setIsModalOpen(false);
       } else {
         // Safer error handling: check if data.errors exists before joining
         const errorMsg = data.errors ? data.errors.join(", ") : (data.error || "An unauthorized error occurred.");
@@ -65,6 +67,31 @@ function App() {
       }
     } catch (err) {
       console.error("Failed to save recipe:", err);
+    }
+  };
+
+  const handleUpdateRecipe = async (updatedData) => {
+    try {
+      const response = await fetch(`https://servewise-market-backend.onrender.com/api/v1/recipes/${editingRecipe.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ recipe: updatedData })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Update global recipes list
+        setRecipes(prev => prev.map(r => r.id === data.id ? data : r));
+        setEditingRecipe(null); // Close modal
+      } else {
+        alert(`Error: ${data.errors?.join(", ") || "Update failed"}`);
+      }
+    } catch (err) {
+      console.error("Update error:", err);
     }
   };
 
@@ -132,6 +159,8 @@ function App() {
           <RecipeModal
             onClose={() => setIsModalOpen(false)}
             onSave={handleAddRecipe}
+            allIngredients={ingredients}
+            allRecipes={recipes}
           />
         )}
 
@@ -139,6 +168,18 @@ function App() {
           <RecipeDetail
             recipeId={selectedRecipeId}
             onBack={() => setCurrentView('recipes')}
+            recipes={recipes}
+            onEditClick={(recipe) => setEditingRecipe(recipe)}
+          />
+        )}
+
+        {editingRecipe && (
+          <RecipeModal
+            recipe={editingRecipe}
+            onClose={() => setEditingRecipe(null)}
+            onSave={handleUpdateRecipe}
+            allIngredients={ingredients}
+            allRecipes={recipes}
           />
         )}
       </main>

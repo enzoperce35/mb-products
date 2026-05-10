@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Layers, ChevronLeft, DollarSign } from 'lucide-react';
+import { Layers, ChevronLeft, DollarSign, Edit3 } from 'lucide-react';
 import { formatQtyUnit } from '../utils/formatUnits';
 import './RecipeDetail.css';
 
 const formatPeso = (value) => `₱${Number(value || 0).toFixed(2)}`;
 
-const RecipeDetail = ({ recipeId, onBack, recipes }) => {
+const RecipeDetail = ({ recipeId, onBack, recipes, onEditClick }) => {
   // 1. Initialize with cached data if available to prevent a blank white screen
   const cachedRecipe = recipes?.find(r => r.id === recipeId);
   const [recipe, setRecipe] = useState(cachedRecipe || null);
@@ -36,9 +36,16 @@ const RecipeDetail = ({ recipeId, onBack, recipes }) => {
 
   return (
     <div className="page-container-minimal">
-      <div className="back-button-block">
+      <div className="recipe-detail-header">
         <button className="back-link-minimal" onClick={onBack}>
           <ChevronLeft size={16} /> Back
+        </button>
+
+        <button 
+          className="edit-recipe-btn-minimal" 
+          onClick={() => onEditClick(recipe)}
+        >
+          <Edit3 size={18} /> Edit Recipe
         </button>
       </div>
 

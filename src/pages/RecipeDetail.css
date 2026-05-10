@@ -10,10 +10,15 @@
 }
 
 /* =========================
-   BACK BUTTON 
+   HEADER BLOCK (Back & Edit)
 ========================= */
-.back-button-block {
-  margin-bottom: 30px;
+.recipe-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .back-link-minimal {
@@ -28,6 +33,33 @@
   font-weight: 600;
   cursor: pointer;
   font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.back-link-minimal:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.edit-recipe-btn-minimal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 1px solid #e67e22; /* Ma'Donna Orange */
+  color: #e67e22;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.edit-recipe-btn-minimal:hover {
+  background-color: #e67e22;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(230, 126, 34, 0.2);
 }
 
 /* =========================
@@ -87,7 +119,6 @@
 
 /* =========================
    STACKED LAYOUT 
-   (Ingredients top, Instructions bottom)
 ========================= */
 .recipe-sections-stack {
   display: flex;
@@ -107,10 +138,8 @@
   margin-left: 6px;
   width: 14px;
   height: 14px;
-
-  color: #3498db; /* clean blue */
+  color: #3498db; 
   opacity: 0.9;
-
   vertical-align: middle;
 }
 
@@ -175,6 +204,12 @@
   font-size: 1.5rem;
   cursor: pointer;
   padding: 0;
+  color: #64748b;
+  transition: color 0.2s;
+}
+
+.price-toggle-btn-minimal.active {
+  color: #e67e22;
 }
 
 .minimal-total-row {
@@ -185,4 +220,21 @@
   border-top: 2px solid #1e293b;
   font-size: 1.25rem;
   font-weight: 800;
+}
+
+/* =========================
+   MOBILE RESPONSIVENESS
+========================= */
+@media (max-width: 480px) {
+  .minimal-recipe-title {
+    font-size: 2.2rem;
+  }
+  
+  .edit-recipe-btn-minimal span {
+    display: none; /* Hide text on small screens, keep icon */
+  }
+
+  .edit-recipe-btn-minimal {
+    padding: 8px;
+  }
 }

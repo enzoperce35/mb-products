@@ -3,7 +3,7 @@ import './Recipes.css';
 
 const Recipes = ({ onRecipeClick, recipes, loading, onAddRecipe }) => {
   // 1. Manage active tab for grouping
-  const [activeTab, setActiveTab] = useState('main');
+  const [activeTab, setActiveTab] = useState('sub');
 
   // 2. Group recipes by type (Main, Sub, Component)
   const groupedRecipes = useMemo(() => {
@@ -34,7 +34,7 @@ const Recipes = ({ onRecipeClick, recipes, loading, onAddRecipe }) => {
     <div className="list-view-container">
       {/* Tab Navigation for Groups */}
       <div className="recipe-type-tabs">
-        {['main', 'sub', 'component'].map((type) => (
+        {['sub', 'main', 'component'].map((type) => (
           <button
             key={type}
             className={`tab-btn ${activeTab === type ? 'active' : ''}`}
@@ -57,9 +57,6 @@ const Recipes = ({ onRecipeClick, recipes, loading, onAddRecipe }) => {
                 <h3 className="grid-item-title">{recipe.name}</h3>
                 <div className="grid-item-yield">
                   {parseFloat(recipe.base_yield_quantity)} {recipe.base_yield_unit}
-                </div>
-                <div className="grid-item-cost">
-                  ₱{parseFloat(recipe.total_cost || 0).toLocaleString()}
                 </div>
               </div>
             </div>
