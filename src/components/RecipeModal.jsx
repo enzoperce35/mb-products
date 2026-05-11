@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Layers, Citrus } from 'lucide-react';
+import { Plus, Trash2, Layers, Citrus, Info } from 'lucide-react';
 import './RecipeModal.css';
 
 const UNIT_GROUPS = {
@@ -22,6 +22,7 @@ const RecipeModal = ({ onClose, onSave, recipe, allIngredients = [], allRecipes 
     base_yield_quantity: recipe?.base_yield_quantity || 1,
     base_yield_unit: recipe?.base_yield_unit || 'each',
     instructions: recipe?.instructions || '',
+    notes: recipe?.notes || '',
     recipe_items_attributes: (recipe?.recipe_items || []).map(item => ({
       id: item.id,
       component_id: item.component_id,
@@ -48,9 +49,9 @@ const RecipeModal = ({ onClose, onSave, recipe, allIngredients = [], allRecipes 
       if (type === 'sub') return r.recipe_type === 'sub';
       return r.recipe_type === 'component' || (!r.recipe_type && type === 'component');
     });
-  
+
     if (filtered.length === 0) return null;
-  
+
     return (
       <optgroup label={label}>
         {filtered.map(r => (
@@ -64,13 +65,13 @@ const RecipeModal = ({ onClose, onSave, recipe, allIngredients = [], allRecipes 
     const sourceData = currentItem.component_type === 'Ingredient' ? allIngredients : allRecipes;
     const original = sourceData.find(i => i.id == currentItem.component_id);
 
-    const baseUnit = currentItem.component_type === 'Ingredient' 
-      ? original?.unit 
+    const baseUnit = currentItem.component_type === 'Ingredient'
+      ? original?.unit
       : original?.base_yield_unit;
-  
+
     const unitToMatch = baseUnit || currentItem.needed_unit;
     const groupKey = getUnitGroup(unitToMatch);
-  
+
     if (groupKey && UNIT_GROUPS[groupKey]) {
       return (
         <optgroup label={`Compatible ${groupKey} Units`}>
@@ -80,7 +81,7 @@ const RecipeModal = ({ onClose, onSave, recipe, allIngredients = [], allRecipes 
         </optgroup>
       );
     }
-  
+
     return Object.entries(UNIT_GROUPS).map(([group, units]) => (
       <optgroup key={group} label={group}>
         {units.map(u => <option key={u} value={u}>{u}</option>)}
@@ -211,6 +212,19 @@ const RecipeModal = ({ onClose, onSave, recipe, allIngredients = [], allRecipes 
                 placeholder="Step 1: Prep ingredients..."
                 value={formData.instructions}
                 onChange={e => setFormData({ ...formData, instructions: e.target.value })}
+              />
+            </div>
+
+            <div className="form-group mt-15">
+              <label className="label-with-icon">
+                <Info size={14} /> Internal Notes / Prep Reminders
+              </label>
+              <textarea
+                rows="2"
+                className="notes-textarea"
+                placeholder="e.g., Best served chilled or 'Use extra garlic for Bilao orders'..."
+                value={formData.notes}
+                onChange={e => setFormData({ ...formData, notes: e.target.value })}
               />
             </div>
           </div>

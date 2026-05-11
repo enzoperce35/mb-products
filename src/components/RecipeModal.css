@@ -332,6 +332,26 @@
   line-height: 1.2;
 }
 
+.notes-textarea {
+  background-color: #fffbeb;
+  border: 1px solid #fde68a;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: #92400e;
+}
+
+.label-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #b45309;
+  font-weight: 600;
+}
+
+.mt-15 {
+  margin-top: 15px;
+}
+
 @media (max-width: 600px) {
   .type-options-grid {
     grid-template-columns: 1fr;

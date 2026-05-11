@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layers, ChevronLeft, DollarSign, Edit3 } from 'lucide-react';
+import { Layers, ChevronLeft, DollarSign, Edit3, Pin } from 'lucide-react';
 import { formatQtyUnit } from '../utils/formatUnits';
 import './RecipeDetail.css';
 
@@ -41,8 +41,8 @@ const RecipeDetail = ({ recipeId, onBack, recipes, onEditClick }) => {
           <ChevronLeft size={16} /> Back
         </button>
 
-        <button 
-          className="edit-recipe-btn-minimal" 
+        <button
+          className="edit-recipe-btn-minimal"
           onClick={() => onEditClick(recipe)}
         >
           <Edit3 size={18} /> Edit Recipe
@@ -85,8 +85,8 @@ const RecipeDetail = ({ recipeId, onBack, recipes, onEditClick }) => {
                     {item.component_type === "Recipe" && <Layers className="recipe-icon-minimal" />}
                   </td>
                   <td className="ing-qty-minimal">
-                    {item.custom_display_name?.trim() 
-                      ? item.custom_display_name 
+                    {item.custom_display_name?.trim()
+                      ? item.custom_display_name
                       : formatQtyUnit(item.needed_quantity, item.needed_unit)
                     }
                   </td>
@@ -121,6 +121,16 @@ const RecipeDetail = ({ recipeId, onBack, recipes, onEditClick }) => {
                 </li>
               ))}
             </ol>
+          </section>
+        )}
+
+        {recipe.notes?.trim() && (
+          <section className="column-notes-bottom">
+            <div className="minimal-notes-container">
+              <div className="notes-header-minimal">
+                <Pin size={16} className="pin-icon" /> <p className="minimal-notes-text">{recipe.notes}</p>
+              </div>
+            </div>
           </section>
         )}
       </div>
