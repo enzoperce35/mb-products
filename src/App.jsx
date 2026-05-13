@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import LandingPage from './pages/LandingPage';
+import React, { useState, useEffect, useRef } from 'react';
 import MarketPrices from './pages/MarketPrices';
 import ProductMaster from './pages/ProductMaster';
 import Recipes from './pages/Recipes';
@@ -8,23 +7,33 @@ import RecipeModal from './components/RecipeModal';
 import './App.css';
 
 function App() {
-  const [currentView, setCurrentView] = useState('landing');
+  const [currentView, setCurrentView] = useState('market');
   const [selectedRecipeId, setSelectedRecipeId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Global State for Caching
   const [ingredients, setIngredients] = useState([]);
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [editingRecipe, setEditingRecipe] = useState(null);
 
-  // Centralized Data Fetching (Fetched only once on mount)
+  const touchStartX = useRef(0);
+
+  const views = ['market', 'products', 'recipes'];
+
+  const labels = {
+    market: 'Market Prices',
+    products: 'Product Master',
+    recipes: 'Recipes'
+  };
+
   useEffect(() => {
     setLoading(true);
+
     Promise.all([
       fetch("https://servewise-market-backend.onrender.com/api/v1/ingredients")
         .then(res => res.json()),
+
       fetch("https://servewise-market-backend.onrender.com/api/v1/recipes")
         .then(res => res.json())
     ])
@@ -39,51 +48,77 @@ function App() {
       });
   }, []);
 
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e) => {
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX.current - touchEndX;
+
+    const currentIndex = views.indexOf(currentView);
+
+    // swipe left
+    if (diff > 60 && currentIndex < views.length - 1) {
+      setCurrentView(views[currentIndex + 1]);
+    }
+
+    // swipe right
+    if (diff < -60 && currentIndex > 0) {
+      setCurrentView(views[currentIndex - 1]);
+    }
+  };
+
   const openRecipe = (id) => {
     setSelectedRecipeId(id);
     setCurrentView('recipe-detail');
   };
 
-  const handleUpdatePrice = async (id, updatedData) => {
+  const handleUpdatePrice = async (id, payload) => {
     try {
-      const response = await fetch(`https://servewise-market-backend.onrender.com/api/v1/ingredients/${id}`, {
-        method: 'PATCH',
-        headers: { 
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ingredient: {
-            price: updatedData.price,
-            quantity: updatedData.quantity,
-            unit: updatedData.unit
-          }
-        })
-      });
-  
-      if (!response.ok) throw new Error("Failed to update backend");
-  
-      // Update local state so the UI refreshes immediately
+      const response = await fetch(
+        `https://servewise-market-backend.onrender.com/api/v1/ingredients/${id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Backend validation error:", errorData);
+        throw new Error("Bad Request");
+      }
+
       const updatedIngredient = await response.json();
-      setIngredients(prev => 
+
+      setIngredients(prev =>
         prev.map(ing => ing.id === id ? updatedIngredient : ing)
       );
-  
+
     } catch (error) {
       console.error("Update Error:", error);
-      alert("Mabuhay! There was an error syncing with the server.");
+      throw error;
     }
   };
 
   const handleAddRecipe = async (newRecipeData) => {
     try {
-      const response = await fetch("https://servewise-market-backend.onrender.com/api/v1/recipes", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({ recipe: newRecipeData })
-      });
+      const response = await fetch(
+        "https://servewise-market-backend.onrender.com/api/v1/recipes",
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ recipe: newRecipeData })
+        }
+      );
 
       const data = await response.json();
 
@@ -91,8 +126,11 @@ function App() {
         setRecipes(prev => [...prev, data]);
         setIsModalOpen(false);
       } else {
-        // Safer error handling: check if data.errors exists before joining
-        const errorMsg = data.errors ? data.errors.join(", ") : (data.error || "An unauthorized error occurred.");
+        const errorMsg =
+          data.errors
+            ? data.errors.join(", ")
+            : (data.error || "An unauthorized error occurred.");
+
         alert(`Error ${response.status}: ${errorMsg}`);
       }
     } catch (err) {
@@ -102,66 +140,59 @@ function App() {
 
   const handleUpdateRecipe = async (updatedData) => {
     try {
-      const response = await fetch(`https://servewise-market-backend.onrender.com/api/v1/recipes/${editingRecipe.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({ recipe: updatedData })
-      });
+      const response = await fetch(
+        `https://servewise-market-backend.onrender.com/api/v1/recipes/${editingRecipe.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ recipe: updatedData })
+        }
+      );
 
       const data = await response.json();
 
       if (response.ok) {
-        // Update global recipes list
-        setRecipes(prev => prev.map(r => r.id === data.id ? data : r));
-        setEditingRecipe(null); // Close modal
+        setRecipes(prev =>
+          prev.map(r => r.id === data.id ? data : r)
+        );
+
+        setEditingRecipe(null);
+
       } else {
         alert(`Error: ${data.errors?.join(", ") || "Update failed"}`);
       }
+
     } catch (err) {
       console.error("Update error:", err);
     }
   };
 
   return (
-    <div className="app-main-wrapper">
-      <nav className="main-nav">
-        <div className="nav-logo" onClick={() => setCurrentView('landing')}>
-          MB <span>PRODUCTS</span>
+    <div
+      className="app-main-wrapper"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+
+      {/* Horizontal Swipe Navigation */}
+      {currentView !== 'recipe-detail' && (
+        <div className="top-swipe-nav">
+          {views.map(view => (
+            <h1
+              key={view}
+              className={currentView === view ? 'active' : ''}
+              onClick={() => setCurrentView(view)}
+            >
+              {labels[view]}
+            </h1>
+          ))}
         </div>
-        <div className="nav-links">
-          <button
-            className={currentView === 'market' ? 'active' : ''}
-            onClick={() => setCurrentView('market')}
-          >
-            Market Prices
-          </button>
-          <button
-            className={currentView === 'products' ? 'active' : ''}
-            onClick={() => setCurrentView('products')}
-          >
-            Product Master
-          </button>
-          <button
-            className={currentView === 'recipes' || currentView === 'recipe-detail' ? 'active' : ''}
-            onClick={() => setCurrentView('recipes')}
-          >
-            Recipes
-          </button>
-        </div>
-      </nav>
+      )}
 
       <main className="content-container">
-        {currentView === 'landing' && (
-          <LandingPage
-            setView={setCurrentView}
-            ingredients={ingredients}
-            recipes={recipes}
-            loading={loading}
-          />
-        )}
 
         {currentView === 'market' && (
           <MarketPrices
@@ -213,6 +244,7 @@ function App() {
             allRecipes={recipes}
           />
         )}
+
       </main>
     </div>
   );
