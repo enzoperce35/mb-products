@@ -44,6 +44,36 @@ function App() {
     setCurrentView('recipe-detail');
   };
 
+  const handleUpdatePrice = async (id, updatedData) => {
+    try {
+      const response = await fetch(`https://servewise-market-backend.onrender.com/api/v1/ingredients/${id}`, {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ingredient: {
+            price: updatedData.price,
+            quantity: updatedData.quantity,
+            unit: updatedData.unit
+          }
+        })
+      });
+  
+      if (!response.ok) throw new Error("Failed to update backend");
+  
+      // Update local state so the UI refreshes immediately
+      const updatedIngredient = await response.json();
+      setIngredients(prev => 
+        prev.map(ing => ing.id === id ? updatedIngredient : ing)
+      );
+  
+    } catch (error) {
+      console.error("Update Error:", error);
+      alert("Mabuhay! There was an error syncing with the server.");
+    }
+  };
+
   const handleAddRecipe = async (newRecipeData) => {
     try {
       const response = await fetch("https://servewise-market-backend.onrender.com/api/v1/recipes", {
@@ -137,7 +167,8 @@ function App() {
           <MarketPrices
             setView={setCurrentView}
             ingredients={ingredients}
-            setIngredients={setIngredients} // Allows local updates to sync globally
+            setIngredients={setIngredients}
+            onUpdatePrice={handleUpdatePrice}
           />
         )}
 

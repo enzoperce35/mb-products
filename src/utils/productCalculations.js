@@ -84,3 +84,17 @@ export const getUnitCategory = (unit) => {
   if (UNIT_MAP.time.includes(u)) return 'time';
   return 'count';
 };
+
+export const getScalingFactor = (fromUnit, toUnit, category) => {
+  const from = fromUnit?.toLowerCase();
+  const to = toUnit?.toLowerCase();
+  
+  if (!from || !to || from === to) return 1;
+
+  const map = UNIT_CONVERSION[category];
+  if (!map || !map[from] || !map[to]) return 1;
+
+  // Scaling Factor = Target Value / Source Value
+  // Example: kg (1000) / g (1) = 1000
+  return map[to] / map[from];
+};
