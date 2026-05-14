@@ -71,7 +71,7 @@ const RecipeDetail = ({ recipeId, onBack, recipes, onEditClick }) => {
               className={`price-toggle-btn-minimal ${showPrices ? 'active' : ''}`}
               onClick={() => setShowPrices(prev => !prev)}
             >
-              <DollarSign size={22} />
+              <DollarSign size={42} />
             </button>
           </div>
 
@@ -128,7 +128,7 @@ const RecipeDetail = ({ recipeId, onBack, recipes, onEditClick }) => {
           <section className="column-notes-bottom">
             <div className="minimal-notes-container">
               <div className="notes-header-minimal">
-                <Pin size={16} className="pin-icon" /> <p className="minimal-notes-text">{recipe.notes}</p>
+                <Pin size={45} className="pin-icon" /> <p className="minimal-notes-text">{recipe.notes}</p>
               </div>
             </div>
           </section>

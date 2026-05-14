@@ -136,11 +136,10 @@
 
 .recipe-icon-minimal {
   margin-left: 6px;
-  width: 14px;
-  height: 14px;
+  width: 34px;
+  height: 34px;
   color: #3498db; 
   opacity: 0.9;
-  vertical-align: middle;
 }
 
 .ing-item-row-minimal {
