@@ -1,88 +1,131 @@
 /* App.css */
+
 :root {
-  --ma-donna-green: #27ae60;
-  --nav-bg: #1a1a1a;
-  --bg-color: #f4f7f6;
-  --white: #ffffff;
+  --bg: #ffffff;
+  --text: #111111;
+  --muted: rgba(0, 0, 0, 0.25);
+  --soft: rgba(0, 0, 0, 0.06);
 }
 
-.app-main-wrapper {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background-color: var(--bg-color);
-  font-family: 'Inter', sans-serif;
-}
-
-/* TOP NAV STYLE */
-.main-nav {
-  background: var(--nav-bg);
-  padding: 0 2rem;
-  height: 70px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-}
-
-.nav-logo {
-  color: white;
-  font-weight: 900;
-  font-size: 1.4rem;
-  letter-spacing: 1px;
-  cursor: pointer;
-}
-
-.nav-logo span {
-  color: var(--ma-donna-green);
-  font-weight: 300;
-}
-
-.nav-links {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.nav-links button {
-  background: transparent;
-  border: none;
-  color: #888;
-  font-weight: 600;
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  padding: 10px 0;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.nav-links button:hover {
-  color: white;
-}
-
-.nav-links button.active {
-  color: var(--ma-donna-green);
-  border-bottom: 2px solid var(--ma-donna-green);
-}
-
-/* CONTENT BOX */
-.content-container {
-  flex: 1;
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
+* {
+  margin: 0;
+  padding-top: 1.5vh;
   box-sizing: border-box;
 }
 
-/* GLOBAL CAPTION GREETING - Consistent with your request */
-.content-container::before {
-  content: "Magandang umaga, Ma'Donna!";
-  display: block;
-  font-size: 0.8rem;
-  color: #aaa;
-  margin-bottom: 1rem;
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  background: var(--bg);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+body {
+  color: var(--text);
+}
+
+.app-main-wrapper {
+  width: 100%;
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+
+  background: var(--bg);
+
+  animation: appFade 0.3s ease;
+}
+
+@keyframes appFade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================
+   TOP SWIPE NAV
+========================= */
+
+.top-swipe-nav {
+  width: 100%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3rem;
+
+  padding: 2rem 1.5rem 1rem;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  scrollbar-width: none;
+
+  position: sticky;
+  top: 0;
+
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+
+  z-index: 100;
+}
+
+.top-swipe-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.top-swipe-nav h1 {
+  flex-shrink: 0;
+
+  font-size: clamp(1rem, 3vw, 1.5rem);
+  font-weight: 500;
+  letter-spacing: -0.06em;
+  line-height: 1;
+
+  white-space: nowrap;
+
+  color: var(--muted);
+
+  cursor: pointer;
+
+  transition:
+    color 0.25s ease,
+    transform 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.top-swipe-nav h1:hover {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.top-swipe-nav h1.active {
+  color: var(--text);
+  transform: scale(1.03);
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 768px) {
+  .top-swipe-nav {
+    justify-content: flex-start;
+    gap: 2rem;
+
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  .content-container {
+    padding: 1rem;
+  }
 }

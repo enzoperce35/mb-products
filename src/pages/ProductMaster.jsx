@@ -196,11 +196,6 @@ const ProductMaster = () => {
 
   return (
     <div className="product-master-container">
-      <div className="master-header">
-        <h1>{greeting}</h1>
-        <p>Manage Product Master Costs & Margins</p>
-      </div>
-
       <div className="table-responsive">
         <table className="master-table">
           <thead>

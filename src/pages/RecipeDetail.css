@@ -2,7 +2,7 @@
    PAGE CONTAINER
 ========================= */
 .page-container-minimal {
-  max-width: 800px; /* Tablet-friendly width */
+  max-width: 700px; /* Tablet-friendly width */
   margin: 0 auto;
   padding: 20px;
   background-color: #fff;
