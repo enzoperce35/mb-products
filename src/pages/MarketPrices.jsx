@@ -5,19 +5,27 @@ import { UNIT_MAP, getUnitCategory, getScalingFactor } from '../utils/productCal
 // Updated helper to handle DB timestamps
 const getTimeAgo = (dateString) => {
   if (!dateString) return null;
-  const now = new Date();
-  const past = new Date(dateString);
-  const diffInMs = now - past;
-  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
-  if (diffInDays < 1) return "today";
-  if (diffInDays < 30) return `${diffInDays} days`;
+  // Create Date objects representing midnight local time for clean day matching
+  const now = new Date();
+  const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  const past = new Date(dateString);
+  const pastMidnight = new Date(past.getFullYear(), past.getMonth(), past.getDate());
+
+  // Calculate the difference in calendar days
+  const diffInMs = todayMidnight - pastMidnight;
+  const diffInDays = Math.round(diffInMs / (1000 * 60 * 60 * 24));
+
+  if (diffInDays === 0) return "today";
+  if (diffInDays === 1) return "yesterday"; // Adds missing day-1 detection
+  if (diffInDays < 30) return `${diffInDays} days ago`;
 
   const diffInMonths = Math.floor(diffInDays / 30);
-  if (diffInMonths < 12) return `${diffInMonths} month${diffInMonths > 1 ? 's' : ''}`;
+  if (diffInMonths < 12) return `${diffInMonths} month${diffInMonths > 1 ? 's' : ''} ago`;
 
   const diffInYears = Math.floor(diffInDays / 365);
-  return `${diffInYears} year${diffInYears > 1 ? 's' : ''}`;
+  return `${diffInYears} year${diffInYears > 1 ? 's' : ''} ago`;
 };
 
 const MarketPrices = ({ ingredients, loading, onUpdatePrice }) => {
@@ -35,11 +43,19 @@ const MarketPrices = ({ ingredients, loading, onUpdatePrice }) => {
     setEditingItem(ingredient);
     setEditForm({
       purchasePrice: ingredient.last_purchase_price || ingredient.price,
+<<<<<<< HEAD
       
       purchaseQty: ingredient.last_purchase_qty || Number(ingredient.standard_quantity) || '',
       
       purchaseUnit: ingredient.last_purchase_unit || ingredient.standard_unit || ingredient.unit,
       
+=======
+
+      purchaseQty: ingredient.last_purchase_qty || Number(ingredient.standard_quantity) || '',
+
+      purchaseUnit: ingredient.last_purchase_unit || ingredient.standard_unit || ingredient.unit,
+
+>>>>>>> fix: costing
       notes: ingredient.notes || ''
     });
   };
@@ -119,8 +135,8 @@ const MarketPrices = ({ ingredients, loading, onUpdatePrice }) => {
                     ₱{parseFloat(ing.price).toFixed(2)}
                     <span className="unit-label"> / {Number(ing.standard_quantity)} {ing.standard_unit}</span>
                   </div>
-                  {ing.history_date_1 && (
-                    <div className="last-update-label">last update: {getTimeAgo(ing.history_date_1)}</div>
+                  {ing.updated_at && (
+                    <div className="last-update-label">last update: {getTimeAgo(ing.updated_at)}</div>
                   )}
                 </td>
               </tr>
