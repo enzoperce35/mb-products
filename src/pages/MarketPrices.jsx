@@ -34,9 +34,12 @@ const MarketPrices = ({ ingredients, loading, onUpdatePrice }) => {
   const handlePriceClick = (ingredient) => {
     setEditingItem(ingredient);
     setEditForm({
-      purchasePrice: '',
-      purchaseQty: '',
-      purchaseUnit: ingredient.unit, // Default to the base unit
+      purchasePrice: ingredient.last_purchase_price || ingredient.price,
+      
+      purchaseQty: ingredient.last_purchase_qty || Number(ingredient.standard_quantity) || '',
+      
+      purchaseUnit: ingredient.last_purchase_unit || ingredient.standard_unit || ingredient.unit,
+      
       notes: ingredient.notes || ''
     });
   };
@@ -44,32 +47,32 @@ const MarketPrices = ({ ingredients, loading, onUpdatePrice }) => {
   const handleSave = async () => {
     const { purchasePrice, purchaseQty, purchaseUnit, notes } = editForm;
 
-  if (!purchasePrice || !purchaseQty) {
-    alert("Please enter both price and quantity");
-    return;
-  }
-
-  // Use standard_unit here so the math aligns with your DB sync
-  const category = getUnitCategory(editingItem.standard_unit);
-  const factor = getScalingFactor(purchaseUnit, editingItem.standard_unit, category);
-  
-  // This calculates price for ONE standard unit (e.g. 1 gram)
-  const standardizedPrice = (parseFloat(purchasePrice) / (parseFloat(purchaseQty) / factor));
-
-  const payload = {
-    ingredient: {
-      price: standardizedPrice.toFixed(2), 
-      last_purchase_price: parseFloat(purchasePrice),
-      last_purchase_qty: parseFloat(purchaseQty),
-      last_purchase_unit: purchaseUnit,
-      notes: notes
+    if (!purchasePrice || !purchaseQty) {
+      alert("Please enter both price and quantity");
+      return;
     }
-  };
+
+    const category = getUnitCategory(editingItem.standard_unit);
+    const factor = getScalingFactor(purchaseUnit, editingItem.standard_unit, category);
+
+    // LOGIC: Scale the purchase to match the standard_quantity
+    // If you bought 12 pcs for ₱50, but standard is 6 pcs:
+    // (50 / 12) * 1 (factor) * 6 (standard_quantity) = ₱25.00
+    const totalStandardPrice = (parseFloat(purchasePrice) / parseFloat(purchaseQty)) * factor * parseFloat(editingItem.standard_quantity);
+
+    const payload = {
+      ingredient: {
+        price: totalStandardPrice.toFixed(2),
+        last_purchase_price: parseFloat(purchasePrice),
+        last_purchase_qty: parseFloat(purchaseQty),
+        last_purchase_unit: purchaseUnit,
+        notes: notes
+      }
+    };
 
     try {
-      // Use the prop passed from parent
       await onUpdatePrice(editingItem.id, payload);
-      setEditingItem(null); // Close modal on success
+      setEditingItem(null);
     } catch (error) {
       alert("Failed to update price.");
     }
