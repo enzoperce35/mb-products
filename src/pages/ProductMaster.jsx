@@ -81,14 +81,6 @@ const ProductMaster = () => {
     fetchAllData();
   }, []);
 
-  const getUnitCategory = (unit) => {
-    const u = unit?.toLowerCase();
-    if (UNIT_MAP.weight.includes(u)) return 'weight';
-    if (UNIT_MAP.volume.includes(u)) return 'volume';
-    if (UNIT_MAP.time.includes(u)) return 'time';
-    return 'count';
-  };
-
   const addComponent = (type) => {
     const list = type === 'Recipe' ? recipes : ingredients;
     const item = list[0];
@@ -269,7 +261,6 @@ const ProductMaster = () => {
                 const adjustedQty = convertToBase(
                   comp.qty,
                   comp.unit,
-                  item,
                   comp.category
                 );
 
