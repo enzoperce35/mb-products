@@ -43,19 +43,11 @@ const MarketPrices = ({ ingredients, loading, onUpdatePrice }) => {
     setEditingItem(ingredient);
     setEditForm({
       purchasePrice: ingredient.last_purchase_price || ingredient.price,
-<<<<<<< HEAD
       
       purchaseQty: ingredient.last_purchase_qty || Number(ingredient.standard_quantity) || '',
       
       purchaseUnit: ingredient.last_purchase_unit || ingredient.standard_unit || ingredient.unit,
       
-=======
-
-      purchaseQty: ingredient.last_purchase_qty || Number(ingredient.standard_quantity) || '',
-
-      purchaseUnit: ingredient.last_purchase_unit || ingredient.standard_unit || ingredient.unit,
-
->>>>>>> fix: costing
       notes: ingredient.notes || ''
     });
   };
