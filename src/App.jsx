@@ -14,6 +14,7 @@ function App() {
   const [ingredients, setIngredients] = useState([]);
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
 
   const [editingRecipe, setEditingRecipe] = useState(null);
 
@@ -47,6 +48,38 @@ function App() {
         setLoading(false);
       });
   }, []);
+
+  const handleExportStaticData = async () => {
+    setIsExporting(true);
+    try {
+      const response = await fetch("https://servewise-market-backend.onrender.com/api/v1/exports/ma_donna_bundle");
+      if (!response.ok) throw new Error("Backend export generation failed.");
+
+      const rawBundle = await response.json();
+
+      // Wrap the raw payload inside an explicit, static ES module export template
+      const formattedFileContent = `export const maDonnaData = ${JSON.stringify(rawBundle, null, 2)};`;
+
+      // Trigger native browser download stream
+      const fileBlob = new Blob([formattedFileContent], { type: "application/javascript" });
+      const temporaryUrl = URL.createObjectURL(fileBlob);
+
+      const downloadAnchor = document.createElement("a");
+      downloadAnchor.href = temporaryUrl;
+      downloadAnchor.download = "maDonnaData.js";
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+
+      // Memory management cleanup
+      document.body.removeChild(downloadAnchor);
+      URL.revokeObjectURL(temporaryUrl);
+    } catch (error) {
+      console.error("Export Error:", error);
+      alert("Failed to build offline relational file. Please check server logs.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const handleTouchStart = (e) => {
     touchStartX.current = e.touches[0].clientX;
@@ -246,6 +279,15 @@ function App() {
         )}
 
       </main>
+
+      {/* 📥 Static Download Action Element */}
+      <button
+        className="static-export-button"
+        onClick={handleExportStaticData}
+        disabled={isExporting}
+      >
+        {isExporting ? 'Generating...' : '📥 Export Static JS'}
+      </button>
     </div>
   );
 }

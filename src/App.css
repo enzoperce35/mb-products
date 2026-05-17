@@ -112,6 +112,48 @@ body {
   transform: scale(1.03);
 }
 
+/* Container wrap to arrange headers and button side by side */
+.top-swipe-nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 0 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* Retain your existing scrollable horizontal categories block */
+.top-swipe-nav {
+  display: flex;
+  gap: 20px;
+}
+
+/* Elegant, non-intrusive action design */
+.static-export-button {
+  background-color: #e67e22; /* Vibrant accent color */
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 50px;
+  align-self: center;
+  cursor: pointer;
+  width: 30%;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+.static-export-button:hover {
+  opacity: 0.9;
+}
+
+.static-export-button:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
 /* =========================
    MOBILE
 ========================= */
