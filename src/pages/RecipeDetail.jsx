@@ -85,10 +85,16 @@ const RecipeDetail = ({ recipeId, onBack, recipes, onEditClick }) => {
                     {item.component_type === "Recipe" && <Layers className="recipe-icon-minimal" />}
                   </td>
                   <td className="ing-qty-minimal">
-                    {item.custom_display_name?.trim()
-                      ? item.custom_display_name
-                      : formatQtyUnit(item.needed_quantity, item.needed_unit)
-                    }
+                    {item.custom_display_name?.trim() ? (
+                      <span className="custom-qty-tooltip">
+                        {item.custom_display_name}
+                        <span className="custom-qty-tooltip-text">
+                          {formatQtyUnit(item.needed_quantity, item.needed_unit)}
+                        </span>
+                      </span>
+                    ) : (
+                      formatQtyUnit(item.needed_quantity, item.needed_unit)
+                    )}
                   </td>
                   {showPrices && (
                     <td className="ing-cost-minimal">{formatPeso(item.cost)}</td>

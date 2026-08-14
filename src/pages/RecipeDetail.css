@@ -257,6 +257,60 @@
 }
 
 /* =========================
+   CUSTOM QUANTITY TOOLTIP
+========================= */
+
+.custom-qty-tooltip {
+  position: relative;
+  display: inline-block;
+  cursor: help;
+}
+
+.custom-qty-tooltip-text {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  z-index: 100;
+  bottom: calc(100% + 8px);
+  right: 0;
+
+  background: #1e293b;
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 7px;
+
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  transform: translateY(4px);
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+/* Small arrow */
+.custom-qty-tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  right: 12px;
+
+  border-width: 5px;
+  border-style: solid;
+  border-color: #1e293b transparent transparent transparent;
+}
+
+/* Show tooltip */
+.custom-qty-tooltip:hover .custom-qty-tooltip-text {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* =========================
    MOBILE RESPONSIVENESS
 ========================= */
 @media (max-width: 480px) {
