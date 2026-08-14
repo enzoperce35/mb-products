@@ -8,7 +8,7 @@ import { getOrCreateDeviceId } from './utils/deviceLock';
 import './App.css';
 
 const allowedDeviceIds = [
-  "65fc2e9fc80cedb5ea09f76d6ee047da",  //mac development
+  "59fc87aeda5753b60e0d8ce73dba9f7c",  //mac development may change deoending on the localhost
   "76dd4d560a2a6a4cb785aced393a633a",  //mac production
   "dc2fbca3b5ee7817c5ceee476c65c813"   //huawei tablet
 ];
