@@ -43,11 +43,11 @@ const MarketPrices = ({ ingredients, loading, onUpdatePrice }) => {
     setEditingItem(ingredient);
     setEditForm({
       purchasePrice: ingredient.last_purchase_price || ingredient.price,
-      
+
       purchaseQty: ingredient.last_purchase_qty || Number(ingredient.standard_quantity) || '',
-      
+
       purchaseUnit: ingredient.last_purchase_unit || ingredient.standard_unit || ingredient.unit,
-      
+
       notes: ingredient.notes || ''
     });
   };
@@ -117,7 +117,10 @@ const MarketPrices = ({ ingredients, loading, onUpdatePrice }) => {
               <tr key={ing.id} className="clickable-row">
                 <td>
                   <div className="item-name highlight-blue clickable" onClick={() => setStatsItem(ing)}>
-                    {ing.name}
+                    <span className="tooltip-container">
+                      {ing.name}
+                      <span className="tooltip-text">Ingredient ID: {ing.id}</span>
+                    </span>
                   </div>
                   <div className="brand-tag">{ing.brand || ''}</div>
                 </td>

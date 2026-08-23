@@ -366,6 +366,37 @@ input:focus, select:focus {
   transform: scale(0.96);
 }
 
+/* Custom Tooltip Styling */
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-container .tooltip-text {
+  visibility: hidden;
+  width: max-content;
+  background-color: var(--stone-900);
+  color: var(--white);
+  text-align: center;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  position: absolute;
+  z-index: 10;
+  bottom: 125%;
+  left: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  pointer-events: none;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
 /* --- Responsive --- */
 @media (max-width: 600px) {
   .market-prices-container {

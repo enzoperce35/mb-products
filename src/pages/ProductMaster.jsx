@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  UNIT_MAP, 
-  getUnitCost, 
-  convertToBase, 
-  computeVariantStats, 
-  calculateLiveCost, 
-  getUnitCategory 
+import {
+  UNIT_MAP,
+  getUnitCost,
+  convertToBase,
+  computeVariantStats,
+  calculateLiveCost,
+  getUnitCategory
 } from '../utils/productCalculations';
 import './ProductMaster.css';
 
@@ -28,7 +28,7 @@ const ProductMaster = () => {
   const livePrice = Number(editingVariant?.price || 0);
   const liveProfit = livePrice - liveCost;
   const liveMargin = livePrice > 0 ? (liveProfit / livePrice) * 100 : 0;
-  
+
   /* =========================
      FETCHING
   ========================= */
@@ -122,7 +122,7 @@ const ProductMaster = () => {
   const handleSave = async () => {
     try {
       const variantId = editingVariant?.id;
-  
+
       const res = await fetch(
         `https://servewise-market-backend.onrender.com/api/v1/product_variants/${variantId}/update_components`,
         {
@@ -131,34 +131,34 @@ const ProductMaster = () => {
           body: JSON.stringify({ components: selectedComponents })
         }
       );
-  
+
       if (res.ok) {
-  
+
         // 🔥 preserve scroll position
         const currentScroll = window.scrollY;
-  
+
         // 🔥 instantly close modal
         setEditingVariant(null);
         setSelectedComponents([]);
-  
+
         // 🔥 prevent UI jump
         setTimeout(() => {
           window.scrollTo(0, currentScroll);
         }, 0);
-  
+
         // 🔥 refresh ONLY product list silently
         fetch(
           "https://servewise-market-backend.onrender.com/api/v1/products/master_list?shop_id=1"
         )
           .then(r => r.json())
           .then(pData => {
-  
+
             if (!Array.isArray(pData)) return;
-  
+
             const grouped = pData.reduce((acc, product) => {
               const key = product.name?.trim().toUpperCase() || "UNNAMED";
               const variants = product.variants || [];
-  
+
               if (!acc[key]) {
                 acc[key] = {
                   displayName: key,
@@ -167,17 +167,17 @@ const ProductMaster = () => {
               } else {
                 acc[key].variants.push(...variants);
               }
-  
+
               return acc;
             }, {});
-  
+
             productCache = Object.values(grouped);
-  
+
             // 🔥 soft UI refresh
             setGroupedProducts([...productCache]);
           });
       }
-  
+
     } catch (err) {
       console.error(err);
       alert("Error saving components");
@@ -225,7 +225,10 @@ const ProductMaster = () => {
                           );
                         }}
                       >
-                        {v.name}
+                        <span className="tooltip-container">
+                          {v.name}
+                          <span className="tooltip-text">ProductVariant ID: {v.id}</span>
+                        </span>
                       </td>
                       <td>₱{Number(v.price).toFixed(2)}</td>
                       <td>₱{cost.toFixed(2)}</td>
