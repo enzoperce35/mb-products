@@ -207,15 +207,51 @@
   border-radius: 4px;
 }
 
-.btn-delete-row {
-  background: none;
-  border: none;
-  color: #ef4444;
-  cursor: pointer;
-  opacity: 0.7;
+.delete-cell {
+  width: 60px;
+  min-width: 60px;
+  text-align: center;
+  padding: 6px !important;
 }
 
-.btn-delete-row:hover { opacity: 1; }
+.delete-cell {
+  width: 60px;
+  min-width: 60px;
+  text-align: center;
+}
+
+.btn-delete-row {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #ef4444;
+  border-radius: 6px;
+  background: #fee2e2;
+  color: #ef4444 !important;
+  cursor: pointer;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.btn-delete-row svg {
+  display: block !important;
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+}
+
+.btn-delete-row:hover {
+  background: #ef4444;
+  color: white !important;
+}
+
+.delete-column {
+  width: 60px;
+}
 
 .icon-blue { color: #3498db; }
 .icon-green { color: #27ae60; }

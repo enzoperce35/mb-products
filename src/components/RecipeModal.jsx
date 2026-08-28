@@ -118,13 +118,29 @@ const RecipeModal = ({ onClose, onSave, recipe, allIngredients = [], allRecipes 
   };
 
   const removeRow = (index) => {
+    const item = formData.recipe_items_attributes[index];
+
+    if (!window.confirm(`Remove ${item.component_name}?`)) {
+      return;
+    }
+
     const updatedItems = [...formData.recipe_items_attributes];
+
     if (updatedItems[index].id) {
-      updatedItems[index]._destroy = true;
+      // Existing database record
+      updatedItems[index] = {
+        ...updatedItems[index],
+        _destroy: true
+      };
     } else {
+      // Newly added item that hasn't been saved yet
       updatedItems.splice(index, 1);
     }
-    setFormData({ ...formData, recipe_items_attributes: updatedItems });
+
+    setFormData({
+      ...formData,
+      recipe_items_attributes: updatedItems
+    });
   };
 
   const handleSubmit = (e) => {
@@ -278,7 +294,7 @@ const RecipeModal = ({ onClose, onSave, recipe, allIngredients = [], allRecipes 
                     <th>Item</th>
                     <th width="80">Qty</th>
                     <th width="100">Unit</th>
-                    <th width="40"></th>
+                    <th className="delete-column">Delete</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -286,29 +302,46 @@ const RecipeModal = ({ onClose, onSave, recipe, allIngredients = [], allRecipes 
                     !item._destroy && (
                       <tr key={idx}>
                         <td className="item-name-cell">
-                          {item.component_type === 'Recipe' ? <Layers size={14} className="icon-blue" /> : <Citrus size={14} className="icon-green" />}
+                          {item.component_type === 'Recipe'
+                            ? <Layers size={14} className="icon-blue" />
+                            : <Citrus size={14} className="icon-green" />
+                          }
                           <span>{item.component_name}</span>
                         </td>
+
                         <td>
                           <input
                             type="number"
                             className="table-input"
                             value={item.needed_quantity}
-                            onChange={(e) => updateItem(idx, 'needed_quantity', e.target.value)}
+                            onChange={(e) =>
+                              updateItem(idx, 'needed_quantity', e.target.value)
+                            }
                           />
                         </td>
+
                         <td>
                           <select
                             className="table-input"
                             value={item.needed_unit}
-                            onChange={(e) => updateItem(idx, 'needed_unit', e.target.value)}
+                            onChange={(e) =>
+                              updateItem(idx, 'needed_unit', e.target.value)
+                            }
                           >
                             {renderUnitOptions(item)}
                           </select>
                         </td>
-                        <td>
-                          <button type="button" className="btn-delete-row" onClick={() => removeRow(idx)}>
-                            <Trash2 size={16} />
+
+                        <td className="delete-cell">
+                          <button
+                            type="button"
+                            className="btn-delete-row"
+                            onClick={() => removeRow(idx)}
+                          >
+                            <Trash2
+                              size={18}
+                              strokeWidth={2.5}
+                            />
                           </button>
                         </td>
                       </tr>
