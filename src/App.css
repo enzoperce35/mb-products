@@ -7,10 +7,18 @@
   --soft: rgba(0, 0, 0, 0.06);
 }
 
+/* Fixed: Removed padding-top: 1.5vh from universal reset */
 * {
   margin: 0;
-  padding-top: 1.5vh;
+  padding: 0;
   box-sizing: border-box;
+}
+
+/* Protect SVGs from accidental padding or flex collapsing */
+svg {
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 html,
@@ -21,6 +29,11 @@ body,
   background: var(--bg);
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
+}
+
+/* Applied top spacing here instead of globally */
+#root {
+  padding-top: 1.5vh;
 }
 
 body {
