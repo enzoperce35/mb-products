@@ -136,8 +136,6 @@
 
 .recipe-icon-minimal {
   margin-left: 6px;
-  width: 34px;
-  height: 34px;
   color: #3498db; 
   opacity: 0.9;
 }
@@ -264,6 +262,7 @@
   position: relative;
   display: inline-block;
   cursor: help;
+  color: rgb(210, 76, 76);
 }
 
 .custom-qty-tooltip-text {
@@ -308,6 +307,32 @@
   visibility: visible;
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Make quantity cell feel interactive */
+.clickable-qty {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  border-radius: 4px;
+}
+
+/* Modal specific tweaks */
+.custom-qty-modal {
+  max-width: 400px;
+  width: 90%;
+}
+
+.item-subtitle {
+  font-size: 0.9rem;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+.form-hint {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 4px;
+  display: block;
 }
 
 /* =========================

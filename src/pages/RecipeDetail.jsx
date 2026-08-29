@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layers, ChevronLeft, DollarSign, Edit3, Pin } from 'lucide-react';
+import { Layers, ChevronLeft, DollarSign, Edit3, Pin, X } from 'lucide-react';
 import { formatQtyUnit } from '../utils/formatUnits';
 import './RecipeDetail.css';
 
@@ -11,6 +11,11 @@ const RecipeDetail = ({ recipeId, onBack, recipes, onEditClick }) => {
   const [recipe, setRecipe] = useState(cachedRecipe || null);
   const [loading, setLoading] = useState(!cachedRecipe);
   const [showPrices, setShowPrices] = useState(false);
+
+  // State for Custom Display Name Modal
+  const [editingItem, setEditingItem] = useState(null);
+  const [customDisplayName, setCustomDisplayName] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     // If the cached version already has instructions/items, skip the fetch
@@ -30,6 +35,64 @@ const RecipeDetail = ({ recipeId, onBack, recipes, onEditClick }) => {
         setLoading(false);
       });
   }, [recipeId, cachedRecipe]);
+
+  // Open modal for clicked item
+  const handleQtyClick = (item) => {
+    setEditingItem(item);
+    setCustomDisplayName(item.custom_display_name || '');
+  };
+
+  // Close modal reset state
+  const handleCloseModal = () => {
+    setEditingItem(null);
+    setCustomDisplayName('');
+  };
+
+  // Save the custom display name to backend and update local state
+  const handleSaveCustomName = async (e) => {
+    e.preventDefault();
+    if (!editingItem) return;
+
+    setIsSaving(true);
+
+    try {
+      const response = await fetch(
+        `https://servewise-market-backend.onrender.com/api/v1/recipe_items/${editingItem.id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            recipe_item: {
+              custom_display_name: customDisplayName
+            }
+          })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to update display name');
+      }
+
+      // Update state locally
+      setRecipe(prev => ({
+        ...prev,
+        recipe_items: prev.recipe_items.map(item =>
+          item.id === editingItem.id
+            ? { ...item, custom_display_name: customDisplayName }
+            : item
+        )
+      }));
+
+      handleCloseModal();
+    } catch (err) {
+      console.error('Error updating custom display name:', err);
+      alert('Could not save the display name. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   if (loading && !recipe) return <div className="loading-state">Fetching ingredients...</div>;
   if (!recipe) return <div className="error-state">Recipe not found.</div>;
@@ -71,7 +134,7 @@ const RecipeDetail = ({ recipeId, onBack, recipes, onEditClick }) => {
               className={`price-toggle-btn-minimal ${showPrices ? 'active' : ''}`}
               onClick={() => setShowPrices(prev => !prev)}
             >
-              <DollarSign size={42} />
+              <DollarSign size={22} />
             </button>
           </div>
 
@@ -82,9 +145,13 @@ const RecipeDetail = ({ recipeId, onBack, recipes, onEditClick }) => {
                   <td className="ing-name-minimal">
                     {item.component_name}
                     {/* Shows an icon if the ingredient is actually another recipe (Sub-recipe) */}
-                    {item.component_type === "Recipe" && <Layers className="recipe-icon-minimal" />}
+                    {item.component_type === "Recipe" && <Layers className="recipe-icon-minimal" size={22}/>}
                   </td>
-                  <td className="ing-qty-minimal">
+                  <td 
+                    className="ing-qty-minimal clickable-qty"
+                    onClick={() => handleQtyClick(item)}
+                    title="Click to add or edit custom display name"
+                  >
                     {item.custom_display_name?.trim() ? (
                       <span className="custom-qty-tooltip">
                         {item.custom_display_name}
@@ -103,7 +170,6 @@ const RecipeDetail = ({ recipeId, onBack, recipes, onEditClick }) => {
               ))}
             </tbody>
           </table>
-
 
           {showPrices && (
             <div className="minimal-total-row">
@@ -140,6 +206,63 @@ const RecipeDetail = ({ recipeId, onBack, recipes, onEditClick }) => {
           </section>
         )}
       </div>
+
+      {/* CUSTOM DISPLAY NAME MODAL */}
+      {editingItem && (
+        <div className="modal-overlay">
+          <div className="modal-content custom-qty-modal">
+            <div className="modal-header">
+              <h3>Edit Display Name</h3>
+              <button type="button" className="close-x" onClick={handleCloseModal}>
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleSaveCustomName}>
+              <div className="modal-body">
+                <p className="item-subtitle">
+                  <strong>Item:</strong> {editingItem.component_name}
+                </p>
+                <p className="item-subtitle">
+                  <strong>Actual Quantity:</strong> {formatQtyUnit(editingItem.needed_quantity, editingItem.needed_unit)}
+                </p>
+
+                <div className="form-group mt-15">
+                  <label htmlFor="customDisplayName">Custom Display Label</label>
+                  <input
+                    id="customDisplayName"
+                    type="text"
+                    placeholder="e.g., 1 pinch, 2 cloves, or To taste"
+                    value={customDisplayName}
+                    onChange={(e) => setCustomDisplayName(e.target.value)}
+                    autoFocus
+                  />
+                  <small className="form-hint">
+                    Leave blank to clear and show the original measured quantity.
+                  </small>
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn-cancel"
+                  onClick={handleCloseModal}
+                  disabled={isSaving}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-save-main"
+                  disabled={isSaving}
+                >
+                  {isSaving ? 'Saving...' : 'Save Label'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
