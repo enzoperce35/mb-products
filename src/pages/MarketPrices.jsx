@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './MarketPrices.css';
-import { UNIT_MAP, getUnitCategory, getScalingFactor } from '../utils/productCalculations';
+import { UNIT_MAP, getUnitCost, convertToBase, getUnitCategory, getScalingFactor } from '../utils/productCalculations';
 
 // Unit option definitions
 const WEIGHT_UNITS = ["mg", "g", "kg", "oz", "lb"];
@@ -29,6 +29,21 @@ const getTimeAgo = (dateString) => {
 
   const diffInYears = Math.floor(diffInDays / 365);
   return `${diffInYears} year${diffInYears > 1 ? 's' : ''} ago`;
+};
+
+// Helper function in your component file
+const calculateStandardPrice = (ing) => {
+  const baseCost = getUnitCost(ing, 'Ingredient'); // Cost per base unit (e.g., per gram)
+  const category = getUnitCategory(ing.standard_unit || ing.unit);
+
+  // Convert standard quantity (e.g., 1 kg) to base units (e.g., 1000g)
+  const stdQtyInBase = convertToBase(
+    ing.standard_quantity || 1,
+    ing.standard_unit || ing.unit,
+    category
+  );
+
+  return baseCost * stdQtyInBase;
 };
 
 // Initial form state with blank fields
@@ -102,7 +117,7 @@ const MarketPrices = ({ ingredients, loading, onUpdatePrice, onAddIngredient }) 
 
   const handleSaveAdd = async () => {
     const { name, brand, price, quantity, unit, standard_quantity, standard_unit, notes } = addForm;
-  
+
     if (!name.trim()) {
       alert("Please enter an ingredient name.");
       return;
@@ -111,11 +126,11 @@ const MarketPrices = ({ ingredients, loading, onUpdatePrice, onAddIngredient }) 
       alert("Please enter both price and quantity.");
       return;
     }
-  
+
     const parsedPrice = parseFloat(price);
     const parsedQty = parseFloat(quantity);
     const parsedStdQty = parseFloat(standard_quantity) || parsedQty;
-  
+
     const payload = {
       ingredient: {
         name: name.trim(),
@@ -131,7 +146,7 @@ const MarketPrices = ({ ingredients, loading, onUpdatePrice, onAddIngredient }) 
         notes: notes
       }
     };
-  
+
     try {
       if (onAddIngredient) {
         await onAddIngredient(payload);
@@ -206,8 +221,8 @@ const MarketPrices = ({ ingredients, loading, onUpdatePrice, onAddIngredient }) 
                 <td className="price-unit-cell">
                   <div className="price-amount highlight-blue" onClick={() => handlePriceClick(ing)}>
                     {renderTrend(ing)}
-                    ₱{parseFloat(ing.price).toFixed(2)}
-                    <span className="unit-label"> / {Number(ing.standard_quantity)} {ing.standard_unit}</span>
+                    ₱{calculateStandardPrice(ing).toFixed(2)}
+                    <span className="unit-label"> / {Number(ing.standard_quantity || 1)} {ing.standard_unit || ing.unit}</span>
                   </div>
                   {ing.updated_at && (
                     <div className="last-update-label">last update: {getTimeAgo(ing.updated_at)}</div>
