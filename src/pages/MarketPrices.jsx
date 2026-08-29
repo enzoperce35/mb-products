@@ -33,16 +33,22 @@ const getTimeAgo = (dateString) => {
 
 // Helper function in your component file
 const calculateStandardPrice = (ing) => {
-  const baseCost = getUnitCost(ing, 'Ingredient'); // Cost per base unit (e.g., per gram)
+  if (!ing) return 0;
+  
+  // 1. Get cost per base unit (e.g., 50 / 550g = 0.09091 per gram)
+  const baseCost = getUnitCost(ing, 'Ingredient'); 
+  
+  // 2. Target category (e.g., 'weight')
   const category = getUnitCategory(ing.standard_unit || ing.unit);
 
-  // Convert standard quantity (e.g., 1 kg) to base units (e.g., 1000g)
+  // 3. Convert standard_quantity (e.g., 1 kg) to base units (e.g., 1000g)
   const stdQtyInBase = convertToBase(
     ing.standard_quantity || 1,
     ing.standard_unit || ing.unit,
     category
   );
 
+  // 4. Return correct scaled total (0.09091 * 1000 = ₱90.91)
   return baseCost * stdQtyInBase;
 };
 
@@ -86,27 +92,27 @@ const MarketPrices = ({ ingredients, loading, onUpdatePrice, onAddIngredient }) 
 
   const handleSaveEdit = async () => {
     const { purchasePrice, purchaseQty, purchaseUnit, notes } = editForm;
-
+  
     if (!purchasePrice || !purchaseQty) {
       alert("Please enter both price and quantity");
       return;
     }
-
-    const category = getUnitCategory(editingItem.standard_unit);
-    const factor = getScalingFactor(purchaseUnit, editingItem.standard_unit, category);
-
-    const totalStandardPrice = (parseFloat(purchasePrice) / parseFloat(purchaseQty)) * factor * parseFloat(editingItem.standard_quantity);
-
+  
+    const parsedPrice = parseFloat(purchasePrice);
+    const parsedQty = parseFloat(purchaseQty);
+  
     const payload = {
       ingredient: {
-        price: totalStandardPrice.toFixed(2),
-        last_purchase_price: parseFloat(purchasePrice),
-        last_purchase_qty: parseFloat(purchaseQty),
+        price: parsedPrice,
+        quantity: parsedQty,
+        unit: purchaseUnit,
+        last_purchase_price: parsedPrice,
+        last_purchase_qty: parsedQty,
         last_purchase_unit: purchaseUnit,
         notes: notes
       }
     };
-
+  
     try {
       await onUpdatePrice(editingItem.id, payload);
       setEditingItem(null);
