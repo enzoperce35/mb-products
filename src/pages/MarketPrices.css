@@ -397,6 +397,28 @@ input:focus, select:focus {
   opacity: 1;
 }
 
+.market-header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.add-ingredient-btn {
+  background-color: #27ae60;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-ingredient-btn:hover {
+  background-color: #219653;
+}
+
 /* --- Responsive --- */
 @media (max-width: 600px) {
   .market-prices-container {

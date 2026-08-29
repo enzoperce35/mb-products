@@ -2,23 +2,26 @@ import React, { useState } from 'react';
 import './MarketPrices.css';
 import { UNIT_MAP, getUnitCategory, getScalingFactor } from '../utils/productCalculations';
 
-// Updated helper to handle DB timestamps
+// Unit option definitions
+const WEIGHT_UNITS = ["mg", "g", "kg", "oz", "lb"];
+const VOLUME_UNITS = ["ml", "l", "tsp", "tbs", "fl-oz", "cup", "gal"];
+const PIECE_UNIT = ["each"];
+
+// Helper to handle DB timestamps
 const getTimeAgo = (dateString) => {
   if (!dateString) return null;
 
-  // Create Date objects representing midnight local time for clean day matching
   const now = new Date();
   const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   const past = new Date(dateString);
   const pastMidnight = new Date(past.getFullYear(), past.getMonth(), past.getDate());
 
-  // Calculate the difference in calendar days
   const diffInMs = todayMidnight - pastMidnight;
   const diffInDays = Math.round(diffInMs / (1000 * 60 * 60 * 24));
 
   if (diffInDays === 0) return "today";
-  if (diffInDays === 1) return "yesterday"; // Adds missing day-1 detection
+  if (diffInDays === 1) return "yesterday";
   if (diffInDays < 30) return `${diffInDays} days ago`;
 
   const diffInMonths = Math.floor(diffInDays / 30);
@@ -28,10 +31,27 @@ const getTimeAgo = (dateString) => {
   return `${diffInYears} year${diffInYears > 1 ? 's' : ''} ago`;
 };
 
-const MarketPrices = ({ ingredients, loading, onUpdatePrice }) => {
+// Initial form state with blank fields
+const INITIAL_ADD_FORM = {
+  name: '',
+  brand: '',
+  price: '',
+  quantity: '',
+  unit: 'g',
+  standard_quantity: '',
+  standard_unit: 'g',
+  notes: ''
+};
+
+const MarketPrices = ({ ingredients, loading, onUpdatePrice, onAddIngredient }) => {
   const [editingItem, setEditingItem] = useState(null);
   const [statsItem, setStatsItem] = useState(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
+  // Form state for creating a new ingredient
+  const [addForm, setAddForm] = useState(INITIAL_ADD_FORM);
+
+  // Form state for editing existing price/purchase
   const [editForm, setEditForm] = useState({
     purchasePrice: '',
     purchaseQty: '',
@@ -43,16 +63,13 @@ const MarketPrices = ({ ingredients, loading, onUpdatePrice }) => {
     setEditingItem(ingredient);
     setEditForm({
       purchasePrice: ingredient.last_purchase_price || ingredient.price,
-
       purchaseQty: ingredient.last_purchase_qty || Number(ingredient.standard_quantity) || '',
-
       purchaseUnit: ingredient.last_purchase_unit || ingredient.standard_unit || ingredient.unit,
-
       notes: ingredient.notes || ''
     });
   };
 
-  const handleSave = async () => {
+  const handleSaveEdit = async () => {
     const { purchasePrice, purchaseQty, purchaseUnit, notes } = editForm;
 
     if (!purchasePrice || !purchaseQty) {
@@ -63,9 +80,6 @@ const MarketPrices = ({ ingredients, loading, onUpdatePrice }) => {
     const category = getUnitCategory(editingItem.standard_unit);
     const factor = getScalingFactor(purchaseUnit, editingItem.standard_unit, category);
 
-    // LOGIC: Scale the purchase to match the standard_quantity
-    // If you bought 12 pcs for ₱50, but standard is 6 pcs:
-    // (50 / 12) * 1 (factor) * 6 (standard_quantity) = ₱25.00
     const totalStandardPrice = (parseFloat(purchasePrice) / parseFloat(purchaseQty)) * factor * parseFloat(editingItem.standard_quantity);
 
     const payload = {
@@ -86,6 +100,64 @@ const MarketPrices = ({ ingredients, loading, onUpdatePrice }) => {
     }
   };
 
+  const handleSaveAdd = async () => {
+    const { name, brand, price, quantity, unit, standard_quantity, standard_unit, notes } = addForm;
+  
+    if (!name.trim()) {
+      alert("Please enter an ingredient name.");
+      return;
+    }
+    if (!price || !quantity) {
+      alert("Please enter both price and quantity.");
+      return;
+    }
+  
+    const parsedPrice = parseFloat(price);
+    const parsedQty = parseFloat(quantity);
+    const parsedStdQty = parseFloat(standard_quantity) || parsedQty;
+  
+    const payload = {
+      ingredient: {
+        name: name.trim(),
+        brand: brand.trim(),
+        price: parsedPrice,
+        quantity: parsedQty, // <--- MUST BE SENT AS A FLOAT TO SATISFY RAILS VALIDATION
+        unit: unit || 'g',
+        standard_quantity: parsedStdQty,
+        standard_unit: standard_unit || unit || 'g',
+        last_purchase_price: parsedPrice,
+        last_purchase_qty: parsedQty,
+        last_purchase_unit: unit || 'g',
+        notes: notes
+      }
+    };
+  
+    try {
+      if (onAddIngredient) {
+        await onAddIngredient(payload);
+      }
+      setIsAddModalOpen(false);
+      setAddForm(INITIAL_ADD_FORM);
+    } catch (error) {
+      console.error("Error adding ingredient:", error);
+      alert(`Failed to add new ingredient: ${error.message}`);
+    }
+  };
+
+  const renderUnitOptions = () => (
+    <>
+      <optgroup label="Weight">
+        {WEIGHT_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+      </optgroup>
+      <optgroup label="Volume">
+        {VOLUME_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+      </optgroup>
+      <optgroup label="Count">
+        {PIECE_UNIT.map(u => <option key={u} value={u}>{u}</option>)}
+      </optgroup>
+    </>
+  );
+
   const renderTrend = (item) => {
     if (!item.history_price_1) return null;
 
@@ -104,6 +176,13 @@ const MarketPrices = ({ ingredients, loading, onUpdatePrice }) => {
 
   return (
     <div className="market-prices-container">
+      <div className="market-header-actions">
+        <h2>Market Prices</h2>
+        <button className="add-ingredient-btn" onClick={() => setIsAddModalOpen(true)}>
+          + Add Ingredient
+        </button>
+      </div>
+
       <div className="table-wrapper">
         <table className="market-table">
           <thead>
@@ -140,6 +219,108 @@ const MarketPrices = ({ ingredients, loading, onUpdatePrice }) => {
         </table>
       </div>
 
+      {/* --- ADD INGREDIENT MODAL --- */}
+      {isAddModalOpen && (
+        <div className="modal-overlay">
+          <div className="edit-modal">
+            <h3>Add New Ingredient</h3>
+
+            <div className="form-group">
+              <label>Ingredient Name</label>
+              <input
+                type="text"
+                placeholder="e.g. Mustard"
+                value={addForm.name}
+                onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Brand</label>
+              <input
+                type="text"
+                placeholder="e.g. McCormick"
+                value={addForm.brand}
+                onChange={(e) => setAddForm({ ...addForm, brand: e.target.value })}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Purchase Price</label>
+              <div className="input-with-label">
+                <span>₱</span>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  placeholder="0.00"
+                  value={addForm.price}
+                  onChange={(e) => setAddForm({ ...addForm, price: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>Qty Purchased</label>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  placeholder="0"
+                  value={addForm.quantity}
+                  onChange={(e) => setAddForm({ ...addForm, quantity: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Purchase Unit</label>
+                <select
+                  value={addForm.unit}
+                  onChange={(e) => setAddForm({ ...addForm, unit: e.target.value })}
+                >
+                  {renderUnitOptions()}
+                </select>
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>Standard Qty (Costing)</label>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  placeholder="0"
+                  value={addForm.standard_quantity}
+                  onChange={(e) => setAddForm({ ...addForm, standard_quantity: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Standard Unit</label>
+                <select
+                  value={addForm.standard_unit}
+                  onChange={(e) => setAddForm({ ...addForm, standard_unit: e.target.value })}
+                >
+                  {renderUnitOptions()}
+                </select>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Notes</label>
+              <textarea
+                value={addForm.notes}
+                onChange={(e) => setAddForm({ ...addForm, notes: e.target.value })}
+                placeholder="e.g. Purchased at SM Supermarket"
+                className="form-textarea"
+              />
+            </div>
+
+            <div className="modal-actions">
+              <button className="cancel-btn" onClick={() => setIsAddModalOpen(false)}>Cancel</button>
+              <button className="save-btn" onClick={handleSaveAdd}>Save Ingredient</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* --- EDIT MODAL --- */}
       {editingItem && (
         <div className="modal-overlay">
@@ -170,7 +351,7 @@ const MarketPrices = ({ ingredients, loading, onUpdatePrice }) => {
               </div>
               <div className="form-group"><label>Unit</label>
                 <select value={editForm.purchaseUnit} onChange={(e) => setEditForm({ ...editForm, purchaseUnit: e.target.value })}>
-                  {UNIT_MAP[getUnitCategory(editingItem.unit)].map(u => <option key={u} value={u}>{u}</option>)}
+                  {UNIT_MAP[getUnitCategory(editingItem.unit)]?.map(u => <option key={u} value={u}>{u}</option>)}
                 </select>
               </div>
             </div>
@@ -187,7 +368,7 @@ const MarketPrices = ({ ingredients, loading, onUpdatePrice }) => {
 
             <div className="modal-actions">
               <button className="cancel-btn" onClick={() => setEditingItem(null)}>Cancel</button>
-              <button className="save-btn" onClick={handleSave}>Update Rate</button>
+              <button className="save-btn" onClick={handleSaveEdit}>Update Rate</button>
             </div>
           </div>
         </div>

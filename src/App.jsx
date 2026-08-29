@@ -8,9 +8,9 @@ import { getOrCreateDeviceId } from './utils/deviceLock';
 import './App.css';
 
 const allowedDeviceIds = [
-  "59fc87aeda5753b60e0d8ce73dba9f7c",  //mac development may change deoending on the localhost
-  "76dd4d560a2a6a4cb785aced393a633a",  //mac production
-  "dc2fbca3b5ee7817c5ceee476c65c813"   //huawei tablet
+  "59fc87aeda5753b60e0d8ce73dba9f7c",  // mac development
+  "76dd4d560a2a6a4cb785aced393a633a",  // mac production
+  "dc2fbca3b5ee7817c5ceee476c65c813"   // huawei tablet
 ];
 
 function App() {
@@ -34,9 +34,8 @@ function App() {
     const currentId = getOrCreateDeviceId();
     const allowed = allowedDeviceIds.includes(currentId);
     setIsDeviceAllowed(allowed);
-    setCurrentView('recipes'); // Default route on launch
+    setCurrentView('recipes');
 
-    // Only run data fetches if the device is actually authorized
     if (allowed) {
       setLoading(true);
       Promise.all([
@@ -108,6 +107,27 @@ function App() {
     } catch (error) { console.error("Update Error:", error); throw error; }
   };
 
+  const handleAddIngredient = async (payload) => {
+    try {
+      const response = await fetch("https://servewise-market-backend.onrender.com/api/v1/ingredients", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.errors?.join(', ') || `Server error: ${response.status}`);
+      }
+
+      const newIngredient = await response.json();
+      setIngredients(prev => [...prev, newIngredient]);
+    } catch (error) {
+      console.error("Add Ingredient Error:", error);
+      throw error;
+    }
+  };
+
   const handleAddRecipe = async (newRecipeData) => {
     try {
       const response = await fetch("https://servewise-market-backend.onrender.com/api/v1/recipes", {
@@ -144,7 +164,6 @@ function App() {
 
   if (!currentView) return null;
 
-  // 🛡️ HARD BLOCK: Stop rendering anything if the machine isn't authorized
   if (!isDeviceAllowed) {
     return (
       <div style={{ minHeight: '100vh', position: 'relative', backgroundColor: '#ffffff' }}>
@@ -172,7 +191,13 @@ function App() {
 
       <main className="content-container">
         {currentView === 'market' && (
-          <MarketPrices setView={setCurrentView} ingredients={ingredients} setIngredients={setIngredients} onUpdatePrice={handleUpdatePrice} />
+          <MarketPrices 
+            setView={setCurrentView} 
+            ingredients={ingredients} 
+            setIngredients={setIngredients} 
+            onUpdatePrice={handleUpdatePrice} 
+            onAddIngredient={handleAddIngredient}
+          />
         )}
         {currentView === 'products' && <ProductMaster setView={setCurrentView} />}
         {currentView === 'recipes' && <Recipes setView={setCurrentView} onRecipeClick={openRecipe} recipes={recipes} loading={loading} onAddRecipe={() => setIsModalOpen(true)} />}
