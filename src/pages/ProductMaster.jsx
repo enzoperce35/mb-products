@@ -36,9 +36,9 @@ const ProductMaster = () => {
     const fetchAllData = async () => {
       try {
         const [pRes, rRes, iRes] = await Promise.all([
-          fetch("https://servewise-market-backend.onrender.com/api/v1/products/master_list?shop_id=1"),
-          fetch("https://servewise-market-backend.onrender.com/api/v1/recipes"),
-          fetch("https://servewise-market-backend.onrender.com/api/v1/ingredients")
+          fetch("https://api.servewise.fyi/api/v1/products/master_list?shop_id=1"),
+          fetch("https://api.servewise.fyi/api/v1/recipes"),
+          fetch("https://api.servewise.fyi/api/v1/ingredients")
         ]);
 
         // Check if the response was successful before parsing
@@ -124,7 +124,7 @@ const ProductMaster = () => {
       const variantId = editingVariant?.id;
 
       const res = await fetch(
-        `https://servewise-market-backend.onrender.com/api/v1/product_variants/${variantId}/update_components`,
+        `https://api.servewise.fyi/api/v1/product_variants/${variantId}/update_components`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -148,7 +148,7 @@ const ProductMaster = () => {
 
         // 🔥 refresh ONLY product list silently
         fetch(
-          "https://servewise-market-backend.onrender.com/api/v1/products/master_list?shop_id=1"
+          "https://api.servewise.fyi/api/v1/products/master_list?shop_id=1"
         )
           .then(r => r.json())
           .then(pData => {

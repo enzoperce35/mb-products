@@ -39,8 +39,8 @@ function App() {
     if (allowed) {
       setLoading(true);
       Promise.all([
-        fetch("https://servewise-market-backend.onrender.com/api/v1/ingredients").then(res => res.json()),
-        fetch("https://servewise-market-backend.onrender.com/api/v1/recipes").then(res => res.json())
+        fetch("https://api.servewise.fyi/api/v1/ingredients").then(res => res.json()),
+        fetch("https://api.servewise.fyi/api/v1/recipes").then(res => res.json())
       ])
         .then(([ingredientsData, recipesData]) => {
           setIngredients(ingredientsData);
@@ -57,7 +57,7 @@ function App() {
   const handleExportStaticData = async () => {
     setIsExporting(true);
     try {
-      const response = await fetch("https://servewise-market-backend.onrender.com/api/v1/exports/ma_donna_bundle");
+      const response = await fetch("https://api.servewise.fyi/api/v1/exports/ma_donna_bundle");
       if (!response.ok) throw new Error("Backend export generation failed.");
       const rawBundle = await response.json();
       const formattedFileContent = `export const maDonnaData = ${JSON.stringify(rawBundle, null, 2)};`;
@@ -96,7 +96,7 @@ function App() {
 
   const handleUpdatePrice = async (id, payload) => {
     try {
-      const response = await fetch(`https://servewise-market-backend.onrender.com/api/v1/ingredients/${id}`, {
+      const response = await fetch(`https://api.servewise.fyi/api/v1/ingredients/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify(payload)
@@ -109,7 +109,7 @@ function App() {
 
   const handleAddIngredient = async (payload) => {
     try {
-      const response = await fetch("https://servewise-market-backend.onrender.com/api/v1/ingredients", {
+      const response = await fetch("https://api.servewise.fyi/api/v1/ingredients", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify(payload)
@@ -130,7 +130,7 @@ function App() {
 
   const handleAddRecipe = async (newRecipeData) => {
     try {
-      const response = await fetch("https://servewise-market-backend.onrender.com/api/v1/recipes", {
+      const response = await fetch("https://api.servewise.fyi/api/v1/recipes", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({ recipe: newRecipeData })
@@ -147,7 +147,7 @@ function App() {
 
   const handleUpdateRecipe = async (updatedData) => {
     try {
-      const response = await fetch(`https://servewise-market-backend.onrender.com/api/v1/recipes/${editingRecipe.id}`, {
+      const response = await fetch(`https://api.servewise.fyi/api/v1/recipes/${editingRecipe.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({ recipe: updatedData })

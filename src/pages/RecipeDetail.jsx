@@ -24,7 +24,7 @@ const RecipeDetail = ({ recipeId, onBack, recipes, onEditClick }) => {
       return;
     }
 
-    fetch(`https://servewise-market-backend.onrender.com/api/v1/recipes/${recipeId}`)
+    fetch(`https://api.servewise.fyi/api/v1/recipes/${recipeId}`)
       .then(res => res.json())
       .then(data => {
         setRecipe(data);
@@ -57,7 +57,7 @@ const RecipeDetail = ({ recipeId, onBack, recipes, onEditClick }) => {
 
     try {
       const response = await fetch(
-        `https://servewise-market-backend.onrender.com/api/v1/recipe_items/${editingItem.id}`,
+        `https://api.servewise.fyi/api/v1/recipe_items/${editingItem.id}`,
         {
           method: 'PATCH',
           headers: {
