@@ -11,7 +11,7 @@ import './ProductMaster.css';
 
 let productCache = null;
 
-const ProductMaster = () => {
+const ProductMaster = ({ shopId }) => {
   const greeting = "Mabuhay! Welcome back to ServeWise.";
 
   const [groupedProducts, setGroupedProducts] = useState(productCache || []);
@@ -36,50 +36,60 @@ const ProductMaster = () => {
     const fetchAllData = async () => {
       try {
         const [pRes, rRes, iRes] = await Promise.all([
-          fetch("https://api.servewise.fyi/api/v1/products/master_list?shop_id=1"),
+          fetch(
+            `https://api.servewise.fyi/api/v1/products/master_list?shop_id=${shopId}`
+          ),
           fetch("https://api.servewise.fyi/api/v1/recipes"),
           fetch("https://api.servewise.fyi/api/v1/ingredients")
         ]);
-
-        // Check if the response was successful before parsing
-        if (!pRes.ok) throw new Error("Backend failed to load Product Master");
-
+  
+        if (!pRes.ok) {
+          throw new Error("Backend failed to load Product Master");
+        }
+  
         const pData = await pRes.json();
         const rData = await rRes.json();
         const iData = await iRes.json();
-
-        // STRICT CHECK: Ensure pData is an array before calling .reduce()
+  
         if (!Array.isArray(pData)) {
           console.error("Data received is not an array:", pData);
           setGroupedProducts([]);
           return;
         }
-
+  
         const grouped = pData.reduce((acc, product) => {
-          const key = product.name?.trim().toUpperCase() || "UNNAMED";
+          const key =
+            product.name?.trim().toUpperCase() || "UNNAMED";
+  
           const variants = product.variants || [];
+  
           if (!acc[key]) {
-            acc[key] = { displayName: key, variants: [...variants] };
+            acc[key] = {
+              displayName: key,
+              variants: [...variants]
+            };
           } else {
             acc[key].variants.push(...variants);
           }
+  
           return acc;
         }, {});
-
+  
         productCache = Object.values(grouped);
+  
         setGroupedProducts(productCache);
         setRecipes(rData);
         setIngredients(iData);
         setLoading(false);
+  
       } catch (error) {
         console.error("Global Data Sync Error:", error);
         setLoading(false);
-        // Optional: show a user-friendly error message in the UI
       }
     };
-
+  
     fetchAllData();
-  }, []);
+  }, [shopId]);
 
   const addComponent = (type) => {
     const list = type === 'Recipe' ? recipes : ingredients;
@@ -148,7 +158,7 @@ const ProductMaster = () => {
 
         // 🔥 refresh ONLY product list silently
         fetch(
-          "https://api.servewise.fyi/api/v1/products/master_list?shop_id=1"
+          `https://api.servewise.fyi/api/v1/products/master_list?shop_id=${shopId}`
         )
           .then(r => r.json())
           .then(pData => {

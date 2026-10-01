@@ -8,7 +8,7 @@ import { getOrCreateDeviceId } from './utils/deviceLock';
 import './App.css';
 
 const allowedDeviceIds = [
-  "59fc87aeda5753b60e0d8ce73dba9f7c",  // mac development
+  "932941a23f50d5f2cf251e451935bb3b",  // mac development
   "76dd4d560a2a6a4cb785aced393a633a",  // mac production
   "dc2fbca3b5ee7817c5ceee476c65c813"   // huawei tablet
 ];
@@ -16,7 +16,7 @@ const allowedDeviceIds = [
 function App() {
   const [currentView, setCurrentView] = useState(null);
   const [isDeviceAllowed, setIsDeviceAllowed] = useState(false);
-  
+
   const [selectedRecipeId, setSelectedRecipeId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -25,6 +25,11 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState(null);
+
+  const [selectedShop, setSelectedShop] = useState({
+    id: 1,
+    name: 'MB'
+  });
 
   const touchStartX = useRef(0);
   const views = ['recipes', 'market', 'products'];
@@ -56,23 +61,42 @@ function App() {
 
   const handleExportStaticData = async () => {
     setIsExporting(true);
-    try {
-      const response = await fetch("https://api.servewise.fyi/api/v1/exports/ma_donna_bundle");
-      if (!response.ok) throw new Error("Backend export generation failed.");
-      const rawBundle = await response.json();
-      const formattedFileContent = `export const maDonnaData = ${JSON.stringify(rawBundle, null, 2)};`;
 
-      const fileBlob = new Blob([formattedFileContent], { type: "application/javascript" });
+    try {
+      const response = await fetch(
+        `https://api.servewise.fyi/api/v1/exports/ma_donna_bundle?shop_id=${selectedShop.id}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Backend export generation failed.");
+      }
+
+      const rawBundle = await response.json();
+
+      // Dynamically determine the variable name and filename based on the shop ID
+      const variableName = selectedShop.id === 1 ? "maDonnaData" : "dishData";
+      const fileName = selectedShop.id === 1 ? "mbData.js" : "dishData.js";
+
+      const formattedFileContent =
+        `export const ${variableName} = ${JSON.stringify(rawBundle, null, 2)};`;
+
+      const fileBlob = new Blob(
+        [formattedFileContent],
+        { type: "application/javascript" }
+      );
+
       const temporaryUrl = URL.createObjectURL(fileBlob);
 
       const downloadAnchor = document.createElement("a");
       downloadAnchor.href = temporaryUrl;
-      downloadAnchor.download = "maDonnaData.js";
+      downloadAnchor.download = fileName;
+
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
 
       document.body.removeChild(downloadAnchor);
       URL.revokeObjectURL(temporaryUrl);
+
     } catch (error) {
       console.error("Export Error:", error);
       alert("Failed to build offline relational file. Please check server logs.");
@@ -167,7 +191,7 @@ function App() {
   if (!isDeviceAllowed) {
     return (
       <div style={{ minHeight: '100vh', position: 'relative', backgroundColor: '#ffffff' }}>
-        <code style={{ 
+        <code style={{
           position: 'absolute', bottom: '12px', right: '16px',
           fontSize: '11px', color: '#cbd5e1', userSelect: 'all', fontFamily: 'monospace', zIndex: 9999
         }}>
@@ -180,28 +204,57 @@ function App() {
   return (
     <div className="app-main-wrapper" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       {currentView !== 'recipe-detail' && (
-        <div className="top-swipe-nav">
-          {views.map(view => (
-            <h1 key={view} className={currentView === view ? 'active' : ''} onClick={() => setCurrentView(view)}>
-              {labels[view]}
-            </h1>
-          ))}
+        <div className="top-swipe-nav-container">
+
+          <div className="top-swipe-nav">
+            {views.map(view => (
+              <h1
+                key={view}
+                className={currentView === view ? 'active' : ''}
+                onClick={() => setCurrentView(view)}
+              >
+                {labels[view]}
+              </h1>
+            ))}
+          </div>
+
+          <div className="shop-switch">
+            <button
+              className={selectedShop.id === 1 ? 'active' : ''}
+              onClick={() => setSelectedShop({ id: 1, name: 'MB' })}
+            >
+              MB
+            </button>
+
+            <button
+              className={selectedShop.id === 12 ? 'active' : ''}
+              onClick={() => setSelectedShop({ id: 12, name: 'Dish' })}
+            >
+              Dish
+            </button>
+          </div>
+
         </div>
       )}
 
       <main className="content-container">
         {currentView === 'market' && (
-          <MarketPrices 
-            setView={setCurrentView} 
-            ingredients={ingredients} 
-            setIngredients={setIngredients} 
-            onUpdatePrice={handleUpdatePrice} 
+          <MarketPrices
+            setView={setCurrentView}
+            ingredients={ingredients}
+            setIngredients={setIngredients}
+            onUpdatePrice={handleUpdatePrice}
             onAddIngredient={handleAddIngredient}
           />
         )}
-        {currentView === 'products' && <ProductMaster setView={setCurrentView} />}
+        {currentView === 'products' && (
+          <ProductMaster
+            setView={setCurrentView}
+            shopId={selectedShop.id}
+          />
+        )}
         {currentView === 'recipes' && <Recipes setView={setCurrentView} onRecipeClick={openRecipe} recipes={recipes} loading={loading} onAddRecipe={() => setIsModalOpen(true)} />}
-        
+
         {isModalOpen && <RecipeModal onClose={() => setIsModalOpen(false)} onSave={handleAddRecipe} allIngredients={ingredients} allRecipes={recipes} />}
         {currentView === 'recipe-detail' && <RecipeDetail recipeId={selectedRecipeId} onBack={() => setCurrentView('recipes')} recipes={recipes} onEditClick={(recipe) => setEditingRecipe(recipe)} />}
         {editingRecipe && <RecipeModal recipe={editingRecipe} onClose={() => setEditingRecipe(null)} onSave={handleUpdateRecipe} allIngredients={ingredients} allRecipes={recipes} />}

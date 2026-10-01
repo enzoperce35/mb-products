@@ -1,20 +1,26 @@
-/* App.css */
+/* =========================
+   APP.css
+========================= */
 
 :root {
   --bg: #ffffff;
   --text: #111111;
   --muted: rgba(0, 0, 0, 0.25);
   --soft: rgba(0, 0, 0, 0.06);
+  --border: #e0e0e0;
+  --accent: #e67e22;
 }
 
-/* Fixed: Removed padding-top: 1.5vh from universal reset */
+/* =========================
+   RESET
+========================= */
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* Protect SVGs from accidental padding or flex collapsing */
 svg {
   flex-shrink: 0;
   display: inline-block;
@@ -31,7 +37,6 @@ body,
   overflow-x: hidden;
 }
 
-/* Applied top spacing here instead of globally */
 #root {
   padding-top: 1.5vh;
 }
@@ -39,6 +44,10 @@ body,
 body {
   color: var(--text);
 }
+
+/* =========================
+   APP
+========================= */
 
 .app-main-wrapper {
   width: 100%;
@@ -65,15 +74,40 @@ body {
 }
 
 /* =========================
+   TOP NAV CONTAINER
+========================= */
+
+.top-swipe-nav-container {
+  width: 100%;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 0 16px;
+
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(10px);
+
+  border-bottom: 1px solid var(--border);
+
+  position: sticky;
+  top: 0;
+
+  z-index: 100;
+}
+
+/* =========================
    TOP SWIPE NAV
 ========================= */
 
 .top-swipe-nav {
-  width: 100%;
+  flex: 1;
 
   display: flex;
   justify-content: center;
   align-items: center;
+
   gap: 3rem;
 
   padding: 2rem 1.5rem 1rem;
@@ -82,14 +116,6 @@ body {
   overflow-y: hidden;
 
   scrollbar-width: none;
-
-  position: sticky;
-  top: 0;
-
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(10px);
-
-  z-index: 100;
 }
 
 .top-swipe-nav::-webkit-scrollbar {
@@ -101,6 +127,7 @@ body {
 
   font-size: clamp(1rem, 3vw, 1.5rem);
   font-weight: 500;
+
   letter-spacing: -0.06em;
   line-height: 1;
 
@@ -125,46 +152,118 @@ body {
   transform: scale(1.03);
 }
 
-/* Container wrap to arrange headers and button side by side */
-.top-swipe-nav-container {
+/* =========================
+   MB / DISH SHOP SWITCH
+========================= */
+
+.shop-switch {
+  flex-shrink: 0;
+
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background-color: #fff;
-  padding: 0 16px;
-  border-bottom: 1px solid #e0e0e0;
+
+  padding: 3px;
+
+  background: #f1f1f1;
+
+  border-radius: 8px;
+
+  border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-/* Retain your existing scrollable horizontal categories block */
-.top-swipe-nav {
-  display: flex;
-  gap: 20px;
-}
-
-/* Elegant, non-intrusive action design */
-.static-export-button {
-  background-color: #e67e22; /* Vibrant accent color */
-  color: white;
+.shop-switch button {
   border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
+
+  background: transparent;
+
+  color: rgba(0, 0, 0, 0.45);
+
+  font-family: inherit;
   font-size: 12px;
   font-weight: 600;
-  margin: 50px;
-  align-self: center;
+
+  padding: 7px 12px;
+
+  border-radius: 6px;
+
   cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.shop-switch button:hover {
+  color: var(--text);
+}
+
+.shop-switch button.active {
+  background: #ffffff;
+
+  color: var(--text);
+
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.12);
+
+  transform: translateY(-1px);
+}
+
+/* =========================
+   CONTENT
+========================= */
+
+.content-container {
+  width: 100%;
+}
+
+/* =========================
+   STATIC EXPORT BUTTON
+========================= */
+
+.static-export-button {
+  background-color: var(--accent);
+
+  color: white;
+
+  border: none;
+
+  padding: 6px 12px;
+
+  border-radius: 4px;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  margin: 50px;
+
+  align-self: center;
+
+  cursor: pointer;
+
   width: 30%;
+
   white-space: nowrap;
-  transition: opacity 0.2s ease;
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .static-export-button:hover {
   opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.static-export-button:active {
+  transform: translateY(0);
 }
 
 .static-export-button:disabled {
   background-color: #bdc3c7;
   cursor: not-allowed;
+  transform: none;
 }
 
 /* =========================
@@ -172,15 +271,64 @@ body {
 ========================= */
 
 @media (max-width: 768px) {
+
+  .top-swipe-nav-container {
+    padding: 0 10px;
+  }
+
   .top-swipe-nav {
     justify-content: flex-start;
+
     gap: 2rem;
 
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .shop-switch {
+    margin-left: 8px;
+  }
+
+  .shop-switch button {
+    font-size: 11px;
+    padding: 6px 9px;
   }
 
   .content-container {
     padding: 1rem;
+  }
+
+  .static-export-button {
+    width: 60%;
+    margin: 30px auto;
+  }
+}
+
+/* =========================
+   SMALL MOBILE
+========================= */
+
+@media (max-width: 480px) {
+
+  .top-swipe-nav-container {
+    padding: 0 8px;
+  }
+
+  .top-swipe-nav {
+    gap: 1.5rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .top-swipe-nav h1 {
+    font-size: 1rem;
+  }
+
+  .shop-switch button {
+    padding: 6px 8px;
+  }
+
+  .static-export-button {
+    width: 70%;
   }
 }
